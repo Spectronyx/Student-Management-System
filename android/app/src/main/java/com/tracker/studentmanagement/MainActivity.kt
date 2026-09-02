@@ -14,8 +14,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
-    // Default backend REST API URL or local assets
-    private var appUrl = "http://10.0.2.2:5000"
+    // Default backend REST API URL (Live Vercel Cloud Server)
+    private var appUrl = "https://student-management-system-alpha-liard.vercel.app"
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {

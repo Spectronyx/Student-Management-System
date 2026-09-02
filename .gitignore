@@ -1,0 +1,53 @@
+# Python virtual environment
+venv/
+.venv/
+env/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+
+# Environment & credentials
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Database data directories & local database files
+.mariadb_data/
+*.log
+*.sqlite
+*.sqlite3
+*.db
+
+# Archives & binaries
+*.zip
+*.tar.gz
+*.apk
+*.aar
+
+# Android build outputs & local SDK tools
+android/.gradle/
+android/sdk/
+android/app/build/
+android/build/
+android/local.properties
+android/.idea/
+android/*.iml
+android/app/*.iml
+
+# OS & IDE temporary files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~

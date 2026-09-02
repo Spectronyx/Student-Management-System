@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Student Academic Performance Tracker - Android App</title>
+  <meta name="theme-color" content="#4f46e5">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./css/style.css">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- AUTHENTICATION VIEW (LOGIN SCREEN) -->
+    <div id="auth-view" class="view-section active" style="padding: 24px; min-height: 100vh; display: flex; flex-direction: column; justify-content: center;">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <div class="brand-icon" style="width: 60px; height: 60px; margin: 0 auto 16px auto; font-size: 28px;">🎓</div>
+        <h1 class="brand-title" style="font-size: 22px; margin-bottom: 6px;">Student Tracker</h1>
+        <p class="brand-subtitle" style="font-size: 13px;">Academic Performance & Offline Engine</p>
+      </div>
+
+      <div class="card">
+        <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px; text-align: center;">Quick Demo Login</div>
+        <div class="role-chips">
+          <div class="chip role-chip active" data-role="Admin">Admin</div>
+          <div class="chip role-chip" data-role="Faculty">Faculty</div>
+          <div class="chip role-chip" data-role="Student">Student</div>
+        </div>
+
+        <form id="login-form">
+          <div class="form-group">
+            <label class="form-label">Username / Email</label>
+            <input type="text" id="login-username" class="form-input" value="admin" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="login-password" class="form-input" value="admin123" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Sign In</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MAIN APP SCREEN -->
+    <div id="main-app" style="display: none; flex-direction: column; min-height: 100vh;">
+      
+      <!-- Android Top App Header -->
+      <header class="android-header">
+        <div class="brand-info">
+          <div class="brand-icon">🎓</div>
+          <div>
+            <div class="brand-title">Student Tracker</div>
+            <div class="brand-subtitle">Offline Sync Enabled</div>
+          </div>
+        </div>
+        <div class="header-actions">
+          <span id="network-status-pill" class="badge badge-a-plus" onclick="syncOfflineQueue()">🟢 Online</span>
+          <span id="user-role-badge" class="badge badge-a-plus">Admin</span>
+        </div>
+      </header>
+
+      <!-- Main Scrollable Content Area -->
+      <main class="app-content">
+
+        <!-- VIEW 1: DASHBOARD -->
+        <section id="view-dashboard" class="view-section active">
+          
+          <!-- Key Metrics Grid -->
+          <div class="stat-grid">
+            <div class="stat-box">
+              <span class="stat-label">Total Students</span>
+              <span id="stat-total-students" class="stat-val">20</span>
+              <span class="stat-subtext">Active Enrolled</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Average CGPA</span>
+              <span id="stat-avg-cgpa" class="stat-val" style="color: var(--primary);">8.35</span>
+              <span class="stat-subtext">Across Subjects</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Departments</span>
+              <span id="stat-departments" class="stat-val">4</span>
+              <span class="stat-subtext">CS, ECE, ME, IT</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Low Att. Alert</span>
+              <span id="stat-warnings" class="stat-val" style="color: var(--accent-rose);">2</span>
+              <span class="stat-subtext" style="color: var(--accent-rose);">&lt; 75% Flagged</span>
+            </div>
+          </div>
+
+          <!-- Quick Actions Card -->
+          <div class="card">
+            <div class="card-title">
+              <span class="card-title-icon">⚡ Quick Academic Actions</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+              <button class="btn btn-secondary btn-sm" onclick="switchTab('students')">🔍 Search Student</button>
+              <button class="btn btn-secondary btn-sm" onclick="syncOfflineQueue()">🔄 Sync Pending Data</button>
+            </div>
+          </div>
+
+          <!-- Leaderboard Preview -->
+          <div class="card">
+            <div class="card-title">
+              <span class="card-title-icon">🏆 Top Performers Leaderboard</span>
+            </div>
+            <div id="rankings-list">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+        </section>
+
+        <!-- VIEW 2: STUDENTS DIRECTORY -->
+        <section id="view-students" class="view-section">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="student-search-input" class="search-input" placeholder="Search by name, roll no, department...">
+          </div>
+
+          <div id="students-list-container">
+            <!-- Student cards rendered dynamically -->
+          </div>
+        </section>
+
+        <!-- VIEW 3: MARKS & ATTENDANCE -->
+        <section id="view-marks" class="view-section">
+          <div class="card">
+            <div class="card-title">📊 Academic Analytics</div>
+            <div id="analytics-list">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 4: RANKINGS & ANALYTICS -->
+        <section id="view-rankings" class="view-section">
+          <div class="card">
+            <div class="card-title">🥇 Department & Institution Rankings</div>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Calculated using SQL window function RANK() OVER (ORDER BY CGPA DESC)</p>
+            <div id="full-rankings-container">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 5: USER PROFILE -->
+        <section id="view-profile" class="view-section">
+          <div class="card" style="text-align: center; padding: 24px 16px;">
+            <div class="avatar-circle" style="width: 64px; height: 64px; font-size: 24px; margin: 0 auto 12px auto;">👤</div>
+            <h2 id="profile-name" style="font-size: 18px; font-weight: 700;">User</h2>
+            <p id="profile-email" style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">email@tracker.edu</p>
+            <span id="profile-role" class="badge badge-a-plus">Admin</span>
+          </div>
+
+          <div class="card">
+            <button id="logout-btn" class="btn btn-danger">Sign Out Account</button>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- Floating Action Button (+ Add Student) -->
+      <button id="fab-add-btn" class="fab-btn" title="Add Student">+</button>
+
+      <!-- Android Bottom Navigation Bar -->
+      <nav class="bottom-nav">
+        <button id="nav-dashboard" class="nav-item active">
+          <span class="nav-icon">🏠</span>
+          <span>Home</span>
+        </button>
+        <button id="nav-students" class="nav-item">
+          <span class="nav-icon">👥</span>
+          <span>Students</span>
+        </button>
+        <button id="nav-marks" class="nav-item">
+          <span class="nav-icon">📈</span>
+          <span>Analytics</span>
+        </button>
+        <button id="nav-rankings" class="nav-item">
+          <span class="nav-icon">🏆</span>
+          <span>Rankings</span>
+        </button>
+        <button id="nav-profile" class="nav-item">
+          <span class="nav-icon">👤</span>
+          <span>Profile</span>
+        </button>
+      </nav>
+
+    </div>
+
+    <!-- MODAL: ADD STUDENT SHEET -->
+    <div id="add-student-modal" class="modal-overlay">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h3 class="modal-title">➕ Add New Student</h3>
+          <button class="icon-btn" onclick="closeModal('add-student-modal')">✕</button>
+        </div>
+        <form id="add-student-form">
+          <div class="form-group">
+            <label class="form-label">Enrollment Number</label>
+            <input type="text" id="add-std-enrollment" class="form-input" placeholder="e.g. CS2026010" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="add-std-name" class="form-input" placeholder="e.g. Ananya Sharma" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="add-std-email" class="form-input" placeholder="ananya@tracker.edu" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input type="text" id="add-std-phone" class="form-input" placeholder="9876543210">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Department</label>
+            <select id="add-std-dept" class="form-select" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Course</label>
+            <input type="text" id="add-std-course" class="form-input" value="B.Tech CSE" required>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+              <label class="form-label">Year (1-4)</label>
+              <input type="number" id="add-std-year" class="form-input" value="3" min="1" max="4" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Semester (1-8)</label>
+              <input type="number" id="add-std-sem" class="form-input" value="6" min="1" max="8" required>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Save Student Record</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: REPORT CARD SHEET -->
+    <div id="report-card-modal" class="modal-overlay">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h3 class="modal-title">📑 Academic Report Card</h3>
+          <button class="icon-btn" onclick="closeModal('report-card-modal')">✕</button>
+        </div>
+        <div id="report-card-content">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="./js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(err => console.log(err));
+    }
+  </script>
+</body>
+</html>

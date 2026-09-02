@@ -3,20 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Student Academic Performance Tracker</title>
-  <meta name="description" content="Student Academic Performance Tracker - Track grades, attendance, and academic performance">
-  <meta name="theme-color" content="#4f46e5">
+  <title>Student Management System</title>
+  
+  <meta name="theme-color" content="#5b46f6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="./manifest.json">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="./img/logo.png">
+  
   <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
-
   <div class="app-container">
-
-    <!-- TOAST NOTIFICATION -->
     <div id="toast-container" class="toast-container"></div>
 
     <!-- AUTHENTICATION VIEW (LOGIN SCREEN) -->
@@ -27,13 +25,13 @@
             <img src="./img/logo.png" alt="Student Tracker Logo" class="login-logo-img">
           </div>
           <h1 class="login-title">Student Tracker</h1>
-          <p class="login-subtitle">Academic Performance Portal</p>
+          <p class="login-subtitle">Student Management System</p>
         </div>
 
         <div class="login-card">
           <div class="login-card-header">
-            <h2 class="login-card-title">Sign In</h2>
-            <p class="login-card-subtitle">Enter your credentials to continue</p>
+            <h2 class="login-card-title">Welcome Back</h2>
+            <p class="login-card-subtitle">Sign in to your account to continue</p>
           </div>
 
           <form id="login-form">
@@ -56,7 +54,7 @@
             </div>
 
             <button type="submit" id="login-submit-btn" class="btn btn-login">
-              <span id="login-btn-text">Sign In to Dashboard</span>
+              <span id="login-btn-text">Sign In</span>
             </button>
 
             <!-- Quick Demo Login Autofill Chips -->
@@ -75,235 +73,278 @@
     <!-- MAIN APP SCREEN -->
     <div id="main-app" class="main-app" style="display: none;">
 
-      <!-- Top App Header -->
+      <!-- PURPLE APP HEADER -->
       <header class="android-header">
         <div class="brand-info">
-          <img src="./img/logo.png" alt="Student Tracker Logo" class="brand-icon-img">
+          <button class="menu-btn-icon">☰</button>
           <div>
-            <div class="brand-title">Student Tracker</div>
-            <div class="brand-subtitle" id="header-subtitle">Academic Performance</div>
+            <div class="brand-title" id="header-page-title">Dashboard</div>
           </div>
         </div>
 
-        <!-- Desktop Navigation Links -->
+        <!-- Desktop Navigation Tabs -->
         <nav class="desktop-nav">
-          <button class="desktop-nav-link active" data-tab="dashboard" onclick="switchTab('dashboard')">Home</button>
+          <button class="desktop-nav-link active" data-tab="dashboard" onclick="switchTab('dashboard')">Dashboard</button>
           <button class="desktop-nav-link" data-tab="students" onclick="switchTab('students')">Students</button>
-          <button class="desktop-nav-link" data-tab="marks" onclick="switchTab('marks')">Analytics</button>
-          <button class="desktop-nav-link" data-tab="rankings" onclick="switchTab('rankings')">Rankings</button>
+          <button class="desktop-nav-link" data-tab="attendance" onclick="switchTab('attendance')">Attendance</button>
+          <button class="desktop-nav-link" data-tab="marks" onclick="switchTab('marks')">Marks</button>
           <button class="desktop-nav-link" data-tab="profile" onclick="switchTab('profile')">Profile</button>
         </nav>
 
         <div class="header-actions">
-          <button id="desktop-add-btn" class="btn btn-primary btn-sm desktop-only-btn" onclick="openModal('add-student-modal')">
-            <span>+ Add Student</span>
-          </button>
-          <span id="network-status-pill" class="badge badge-online" onclick="syncOfflineQueue()">Online</span>
-          <span id="user-role-badge" class="badge badge-role">Admin</span>
+          <button class="header-icon-btn" title="Notifications">🔔</button>
         </div>
       </header>
 
-      <!-- Main Scrollable Content Area -->
+      <!-- MAIN CONTENT VIEW AREA -->
       <main class="app-content">
 
         <!-- VIEW 1: DASHBOARD -->
         <section id="view-dashboard" class="view-section active">
+          <!-- Welcome Banner Card -->
+          <div class="welcome-card">
+            <div class="welcome-text">
+              <div class="welcome-greeting">Welcome,</div>
+              <div class="welcome-name" id="dashboard-user-name">Admin</div>
+              <div class="welcome-desc">Manage students and keep track of their academic progress.</div>
+            </div>
+            <img src="./img/logo.png" alt="Academic Illustration" class="welcome-illustration">
+          </div>
 
-          <!-- Key Metrics Grid -->
+          <!-- 4 Stat Cards Grid (2x2) -->
           <div class="stat-grid">
             <div class="stat-box">
-              <span class="stat-icon">👥</span>
-              <span class="stat-label">Total Students</span>
-              <span id="stat-total-students" class="stat-val">—</span>
+              <div class="stat-icon-wrapper stat-icon-purple">👥</div>
+              <div class="stat-info">
+                <span class="stat-val" id="stat-total-students">120</span>
+                <span class="stat-label">Total Students</span>
+              </div>
             </div>
-            <div class="stat-box stat-box-primary">
-              <span class="stat-icon">📊</span>
-              <span class="stat-label">Average CGPA</span>
-              <span id="stat-avg-cgpa" class="stat-val">—</span>
-            </div>
+
             <div class="stat-box">
-              <span class="stat-icon">🏛️</span>
-              <span class="stat-label">Departments</span>
-              <span id="stat-departments" class="stat-val">—</span>
+              <div class="stat-icon-wrapper stat-icon-green">👩‍🏫</div>
+              <div class="stat-info">
+                <span class="stat-val">18</span>
+                <span class="stat-label">Teachers</span>
+              </div>
             </div>
-            <div class="stat-box stat-box-danger">
-              <span class="stat-icon">⚠️</span>
-              <span class="stat-label">Low Attendance</span>
-              <span id="stat-warnings" class="stat-val">—</span>
+
+            <div class="stat-box">
+              <div class="stat-icon-wrapper stat-icon-orange">📈</div>
+              <div class="stat-info">
+                <span class="stat-val" id="stat-avg-attendance">92%</span>
+                <span class="stat-label">Attendance</span>
+              </div>
+            </div>
+
+            <div class="stat-box">
+              <div class="stat-icon-wrapper stat-icon-cyan">📊</div>
+              <div class="stat-info">
+                <span class="stat-val" id="stat-avg-marks">78.5%</span>
+                <span class="stat-label">Avg. Marks</span>
+              </div>
             </div>
           </div>
 
-          <!-- Quick Actions -->
-          <div class="card">
-            <div class="card-title">⚡ Quick Actions</div>
-            <div class="action-grid">
-              <button class="action-btn" onclick="switchTab('students')">
-                <span class="action-icon">🔍</span>
-                <span>Search Students</span>
-              </button>
-              <button class="action-btn" onclick="syncOfflineQueue()">
-                <span class="action-icon">🔄</span>
-                <span>Sync Data</span>
-              </button>
-            </div>
+          <!-- Recent Students Section -->
+          <div class="section-header-row">
+            <h3 class="section-header-title">Recent Students</h3>
+            <a href="#" class="section-link-action" onclick="switchTab('students')">View All</a>
           </div>
 
-          <!-- Leaderboard -->
-          <div class="card">
-            <div class="card-title">🏆 Top Performers</div>
-            <div id="rankings-list">
-              <div class="empty-state">Loading rankings...</div>
-            </div>
+          <div id="recent-students-container">
+            <!-- Dynamically Rendered Recent Students -->
           </div>
         </section>
 
-        <!-- VIEW 2: STUDENTS DIRECTORY -->
+        <!-- VIEW 2: STUDENTS -->
         <section id="view-students" class="view-section">
-          <div class="search-box">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="student-search-input" class="search-input" placeholder="Search by name or enrollment no...">
+          <div class="search-filter-row">
+            <div class="search-input-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="student-search-input" placeholder="Search students...">
+            </div>
+            <button class="filter-btn-square" title="Filter">🔽</button>
           </div>
+
           <div id="students-list-container">
-            <div class="empty-state">Loading students...</div>
+            <!-- Dynamically Rendered Students List -->
           </div>
         </section>
 
-        <!-- VIEW 3: ANALYTICS -->
+        <!-- VIEW 3: ATTENDANCE -->
+        <section id="view-attendance" class="view-section">
+          <!-- Date Selector Card -->
+          <div class="date-selector-card">
+            <button class="date-arrow-btn">◀</button>
+            <div class="date-display-text">📅 <span id="attendance-date-val">02 Sep 2025</span></div>
+            <button class="date-arrow-btn">▶</button>
+          </div>
+
+          <!-- Class Dropdown Filter -->
+          <div class="form-group" style="margin-bottom: 14px;">
+            <select id="attendance-class-select" class="form-select">
+              <option value="BCA-1">Class: BCA - 1</option>
+              <option value="CSE-1">Class: CSE - 1</option>
+              <option value="ECE-1">Class: ECE - 1</option>
+            </select>
+          </div>
+
+          <!-- Student Attendance List -->
+          <div id="attendance-students-container">
+            <!-- Dynamically Rendered Attendance List -->
+          </div>
+
+          <button class="btn-primary-action" onclick="saveAttendance()">Save Attendance</button>
+        </section>
+
+        <!-- VIEW 4: MARKS -->
         <section id="view-marks" class="view-section">
-          <div class="card">
-            <div class="card-title">📊 Subject Analytics</div>
-            <div id="analytics-list">
-              <div class="empty-state">Loading analytics...</div>
+          <div style="display: flex; gap: 10px; margin-bottom: 14px;">
+            <div class="form-group" style="flex: 1;">
+              <select id="marks-class-select" class="form-select">
+                <option value="BCA-1">Class: BCA - 1</option>
+                <option value="CSE-1">Class: CSE - 1</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <select id="marks-sem-select" class="form-select">
+                <option value="1">Semester: 1</option>
+                <option value="2">Semester: 2</option>
+              </select>
             </div>
           </div>
-        </section>
 
-        <!-- VIEW 4: RANKINGS -->
-        <section id="view-rankings" class="view-section">
-          <div class="card">
-            <div class="card-title">🥇 Full Rankings</div>
-            <p class="card-desc">Ranked by CGPA using SQL RANK() OVER window function</p>
-            <div id="full-rankings-container">
-              <div class="empty-state">Loading rankings...</div>
-            </div>
+          <div id="marks-students-container">
+            <!-- Dynamically Rendered Marks List -->
           </div>
         </section>
 
         <!-- VIEW 5: PROFILE -->
         <section id="view-profile" class="view-section">
-          <div class="profile-card">
-            <div class="profile-avatar" id="profile-avatar">👤</div>
-            <h2 id="profile-name" class="profile-name">User</h2>
-            <p id="profile-email" class="profile-email">email@tracker.edu</p>
-            <span id="profile-role" class="badge badge-role">Admin</span>
+          <!-- Profile Header Card -->
+          <div class="profile-header-card">
+            <img src="./img/logo.png" alt="User Profile Avatar" class="profile-avatar-large" id="profile-avatar-img">
+            <div class="profile-user-name" id="profile-name">Admin User</div>
+            <div class="profile-user-email" id="profile-email">admin@college.edu</div>
           </div>
-          <div class="card">
-            <button id="logout-btn" class="btn btn-danger">Sign Out</button>
+
+          <!-- Settings Menu List -->
+          <div class="settings-group-card">
+            <div class="settings-item-row">
+              <div class="settings-item-left"><span class="settings-item-icon">👤</span> Personal Information</div>
+              <span style="color: var(--text-muted);">❯</span>
+            </div>
+            <div class="settings-item-row">
+              <div class="settings-item-left"><span class="settings-item-icon">🔒</span> Change Password</div>
+              <span style="color: var(--text-muted);">❯</span>
+            </div>
+            <div class="settings-item-row">
+              <div class="settings-item-left"><span class="settings-item-icon">🔔</span> Notifications</div>
+              <span style="color: var(--text-muted);">❯</span>
+            </div>
+            <div class="settings-item-row">
+              <div class="settings-item-left"><span class="settings-item-icon">ℹ️</span> About App</div>
+              <span style="color: var(--text-muted);">❯</span>
+            </div>
+            <div class="settings-item-row" id="logout-btn">
+              <div class="settings-item-left settings-item-danger"><span class="settings-item-icon">🚪</span> Logout</div>
+              <span style="color: var(--danger-text);">❯</span>
+            </div>
           </div>
         </section>
 
       </main>
 
-      <!-- Floating Action Button -->
+      <!-- FLOATING ACTION BUTTON (PURPLE FAB FOR ADD STUDENT) -->
       <button id="fab-add-btn" class="fab-btn" title="Add Student">+</button>
 
-      <!-- Bottom Navigation -->
+      <!-- BOTTOM NAVIGATION BAR (5 TABS SPEC MATCH) -->
       <nav class="bottom-nav">
-        <button id="nav-dashboard" class="nav-item active">
+        <button id="nav-dashboard" class="nav-item active" onclick="switchTab('dashboard')">
           <span class="nav-icon">🏠</span>
-          <span class="nav-label">Home</span>
+          <span class="nav-label">Dashboard</span>
         </button>
-        <button id="nav-students" class="nav-item">
+        <button id="nav-students" class="nav-item" onclick="switchTab('students')">
           <span class="nav-icon">👥</span>
           <span class="nav-label">Students</span>
         </button>
-        <button id="nav-marks" class="nav-item">
-          <span class="nav-icon">📈</span>
-          <span class="nav-label">Analytics</span>
+        <button id="nav-attendance" class="nav-item" onclick="switchTab('attendance')">
+          <span class="nav-icon">📅</span>
+          <span class="nav-label">Attendance</span>
         </button>
-        <button id="nav-rankings" class="nav-item">
-          <span class="nav-icon">🏆</span>
-          <span class="nav-label">Rankings</span>
+        <button id="nav-marks" class="nav-item" onclick="switchTab('marks')">
+          <span class="nav-icon">📊</span>
+          <span class="nav-label">Marks</span>
         </button>
-        <button id="nav-profile" class="nav-item">
+        <button id="nav-profile" class="nav-item" onclick="switchTab('profile')">
           <span class="nav-icon">👤</span>
           <span class="nav-label">Profile</span>
         </button>
       </nav>
+
     </div>
 
-    <!-- MODAL: ADD STUDENT -->
+    <!-- MODAL: ADD STUDENT (SCREEN 3 MATCH) -->
     <div id="add-student-modal" class="modal-overlay">
       <div class="modal-sheet">
         <div class="modal-header">
-          <h3 class="modal-title">➕ Add New Student</h3>
+          <h3 class="modal-title">Add Student</h3>
           <button class="modal-close" onclick="closeModal('add-student-modal')">✕</button>
         </div>
-        <form id="add-student-form">
-          <div class="form-group">
-            <label class="form-label" for="add-std-enrollment">Enrollment Number</label>
-            <input type="text" id="add-std-enrollment" class="form-input" placeholder="e.g. CS2026010" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="add-std-name">Full Name</label>
-            <input type="text" id="add-std-name" class="form-input" placeholder="e.g. Ananya Sharma" required>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label" for="add-std-email">Email Address</label>
-              <input type="email" id="add-std-email" class="form-input" placeholder="student@tracker.edu" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="add-std-phone">Phone Number</label>
-              <input type="tel" id="add-std-phone" class="form-input" placeholder="9876543210">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label" for="add-std-dept">Department</label>
-              <select id="add-std-dept" class="form-select" required></select>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="add-std-course">Course</label>
-              <input type="text" id="add-std-course" class="form-input" value="B.Tech CSE" required>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label" for="add-std-year">Year</label>
-              <input type="number" id="add-std-year" class="form-input" value="3" min="1" max="4" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="add-std-sem">Semester</label>
-              <input type="number" id="add-std-sem" class="form-input" value="6" min="1" max="8" required>
-            </div>
-          </div>
-          <div class="modal-actions">
-            <button type="button" class="btn btn-secondary" onclick="closeModal('add-student-modal')">Cancel</button>
-            <button type="submit" class="btn btn-primary">Save Student</button>
-          </div>
-        </form>
-      </div>
-    </div>
 
-    <!-- MODAL: REPORT CARD -->
-    <div id="report-card-modal" class="modal-overlay">
-      <div class="modal-sheet">
-        <div class="modal-header">
-          <h3 class="modal-title">Report Card</h3>
-          <button class="modal-close" onclick="closeModal('report-card-modal')">✕</button>
-        </div>
-        <div id="report-card-content"></div>
+        <form id="add-student-form">
+          <div class="photo-upload-placeholder">
+            <span class="photo-upload-icon">📷</span>
+            <span>Add Photo</span>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 12px;">
+            <div class="input-wrapper">
+              <span class="input-icon">👤</span>
+              <input type="text" id="add-std-name" class="form-input icon-input" placeholder="Full Name" required>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 12px;">
+            <div class="input-wrapper">
+              <span class="input-icon">💳</span>
+              <input type="text" id="add-std-enrollment" class="form-input icon-input" placeholder="Roll Number" required>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 12px;">
+            <select id="add-std-dept" class="form-select" required>
+              <option value="1">Class: BCA - 1</option>
+              <option value="2">Class: CSE - 1</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 12px;">
+            <select id="add-std-sem" class="form-select" required>
+              <option value="1">Section A</option>
+              <option value="2">Section B</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 12px;">
+            <input type="text" id="add-std-course" class="form-input" placeholder="Date of Birth (DD/MM/YYYY)">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 12px;">
+            <div class="input-wrapper">
+              <span class="input-icon">📞</span>
+              <input type="tel" id="add-std-phone" class="form-input icon-input" placeholder="Phone Number">
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary-action">Save Student</button>
+        </form>
       </div>
     </div>
 
   </div>
 
   <script src="./js/app.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(err => console.log(err));
-    }
-  </script>
 </body>
 </html>

@@ -401,6 +401,19 @@ function switchTab(tabId) {
   if (content) content.scrollTop = 0;
 }
 
+function populateDeptSelect(selectId) {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+  const depts = state.departments && state.departments.length ? state.departments : [
+    { department_id: 1, department_name: 'Computer Science & Engineering', department_code: 'CSE' },
+    { department_id: 2, department_name: 'Information Technology', department_code: 'IT' },
+    { department_id: 3, department_name: 'Electronics & Communication', department_code: 'ECE' },
+    { department_id: 4, department_name: 'Mechanical Engineering', department_code: 'ME' },
+    { department_id: 5, department_name: 'Civil Engineering', department_code: 'CE' }
+  ];
+  select.innerHTML = depts.map(d => `<option value="${d.department_id}">${esc(d.department_name)} (${esc(d.department_code)})</option>`).join('');
+}
+
 function openModal(id) { const m = document.getElementById(id); if (m) m.classList.add('active'); }
 function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('active'); }
 
@@ -415,6 +428,17 @@ function initEventListeners() {
   bindEvent('nav-marks', 'click', () => switchTab('marks'));
   bindEvent('nav-rankings', 'click', () => switchTab('rankings'));
   bindEvent('nav-profile', 'click', () => switchTab('profile'));
+
+  // Add Student Buttons (FAB & Desktop)
+  bindEvent('fab-add-btn', 'click', () => {
+    populateDeptSelect('add-std-dept');
+    openModal('add-student-modal');
+  });
+
+  bindEvent('desktop-add-btn', 'click', () => {
+    populateDeptSelect('add-std-dept');
+    openModal('add-student-modal');
+  });
 
   // Login Form
   bindEvent('login-form', 'submit', async (e) => {

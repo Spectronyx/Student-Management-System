@@ -38,6 +38,10 @@ class Repository(private val apiService: ApiService) {
         return safeApiCall { apiService.getSubjects(departmentId, semester) }
     }
 
+    suspend fun createSubject(req: SubjectCreateRequest): Result<Subject> {
+        return safeApiCall { apiService.createSubject(req) }
+    }
+
     suspend fun addOrUpdateMarks(req: MarkEntryRequest): Result<Marks> {
         return safeApiCall { apiService.addOrUpdateMarks(req) }
     }

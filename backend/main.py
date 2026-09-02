@@ -55,7 +55,7 @@ def on_startup():
 
 # Serve Static Web Frontend
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "..", "android_app"))
+STATIC_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "android_app"))
 if not os.path.exists(STATIC_DIR):
     STATIC_DIR = os.path.abspath(os.path.join(os.getcwd(), "android_app"))
 

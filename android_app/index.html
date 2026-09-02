@@ -21,27 +21,27 @@
 
     <!-- AUTHENTICATION VIEW (LOGIN SCREEN) -->
     <div id="auth-view" class="auth-screen">
-      <div class="auth-bg-glow blob-1"></div>
-      <div class="auth-bg-glow blob-2"></div>
       <div class="login-wrapper">
         <div class="login-brand">
           <div class="logo-ring">
             <img src="./img/logo.png" alt="Student Tracker Logo" class="login-logo-img">
           </div>
           <h1 class="login-title">Student Tracker</h1>
-          <p class="login-subtitle">Academic Performance Management</p>
+          <p class="login-subtitle">Academic Performance Portal</p>
         </div>
 
-        <div class="card login-card">
-          <h2 class="login-card-title">Welcome Back</h2>
-          <p class="login-card-subtitle">Sign in to your account to continue</p>
+        <div class="login-card">
+          <div class="login-card-header">
+            <h2 class="login-card-title">Sign In</h2>
+            <p class="login-card-subtitle">Enter your credentials to continue</p>
+          </div>
 
           <form id="login-form">
             <div id="login-error" class="login-error" style="display: none;"></div>
 
             <div class="form-group">
               <label class="form-label" for="login-username">Username</label>
-              <div class="input-icon-group">
+              <div class="input-wrapper">
                 <span class="input-icon">👤</span>
                 <input type="text" id="login-username" class="form-input icon-input" value="admin" placeholder="Enter username" required autocomplete="username">
               </div>
@@ -49,20 +49,23 @@
 
             <div class="form-group">
               <label class="form-label" for="login-password">Password</label>
-              <div class="input-icon-group">
+              <div class="input-wrapper">
                 <span class="input-icon">🔒</span>
                 <input type="password" id="login-password" class="form-input icon-input" value="admin123" placeholder="Enter password" required autocomplete="current-password">
               </div>
             </div>
 
-            <button type="submit" id="login-submit-btn" class="btn btn-primary btn-login-submit">
-              <span id="login-btn-text">Sign In</span>
-              <span id="login-btn-loader" class="btn-loader" style="display: none;"></span>
+            <button type="submit" id="login-submit-btn" class="btn btn-login">
+              <span id="login-btn-text">Sign In to Dashboard</span>
             </button>
 
-            <div class="login-credentials-hint">
-              <span class="hint-badge">Admin</span>
-              <span class="hint-text">Username: <code>admin</code> | Password: <code>admin123</code></span>
+            <!-- Quick Demo Login Autofill Chips -->
+            <div class="demo-chips-container">
+              <span class="demo-title">Quick Demo Login:</span>
+              <div class="demo-chips">
+                <button type="button" class="demo-chip" onclick="quickFillLogin('admin', 'admin123')">🔑 Admin</button>
+                <button type="button" class="demo-chip" onclick="quickFillLogin('student', 'student123')">🎓 Student</button>
+              </div>
             </div>
           </form>
         </div>

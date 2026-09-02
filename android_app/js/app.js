@@ -417,6 +417,13 @@ function populateDeptSelect(selectId) {
 function openModal(id) { const m = document.getElementById(id); if (m) m.classList.add('active'); }
 function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('active'); }
 
+function quickFillLogin(username, password) {
+  const uEl = document.getElementById('login-username');
+  const pEl = document.getElementById('login-password');
+  if (uEl) uEl.value = username;
+  if (pEl) pEl.value = password;
+}
+
 // ==============================================================================
 // EVENT LISTENERS
 // ==============================================================================

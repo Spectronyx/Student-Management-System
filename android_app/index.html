@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Student Management System</title>
+  <title>EduTrack | Academic Performance Tracker</title>
   
-  <meta name="theme-color" content="#5b46f6">
+  <meta name="theme-color" content="#2563EB">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="./manifest.json">
@@ -17,52 +17,45 @@
   <div class="app-container">
     <div id="toast-container" class="toast-container"></div>
 
-    <!-- AUTHENTICATION VIEW (LOGIN SCREEN) -->
-    <div id="auth-view" class="auth-screen">
-      <div class="login-wrapper">
-        <div class="login-brand">
-          <div class="logo-ring">
-            <img src="./img/logo.png" alt="Student Tracker Logo" class="login-logo-img">
-          </div>
-          <h1 class="login-title">Student Tracker</h1>
-          <p class="login-subtitle">Student Management System</p>
+    <!-- AUTHENTICATION SCREEN (LOGIN) -->
+    <div id="auth-view" class="auth-screen" style="width:100%; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div class="login-wrapper" style="width:100%; max-width:400px;">
+        <div class="login-brand" style="text-align:center; margin-bottom:28px;">
+          <div style="width:72px; height:72px; margin:0 auto 16px; background:linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); color:#ffffff; border-radius:20px; display:flex; align-items:center; justify-content:center; font-size:36px; box-shadow:0 8px 24px rgba(37, 99, 235, 0.3);">🎓</div>
+          <h1 style="font-size:28px; font-weight:800; color:var(--text-main); letter-spacing:-0.5px;">EduTrack</h1>
+          <p style="font-size:13px; color:var(--text-muted); font-weight:500;">Track. Understand. Improve.</p>
         </div>
 
-        <div class="login-card">
-          <div class="login-card-header">
-            <h2 class="login-card-title">Welcome Back</h2>
-            <p class="login-card-subtitle">Sign in to your account to continue</p>
+        <div class="panel-card" style="margin-bottom:0;">
+          <div style="margin-bottom:20px; text-align:center;">
+            <h2 style="font-size:20px; font-weight:700; color:var(--text-main);">Welcome Back</h2>
+            <p style="font-size:13px; color:var(--text-muted);">Sign in to access your academic tracker</p>
           </div>
 
           <form id="login-form">
-            <div id="login-error" class="login-error" style="display: none;"></div>
+            <div id="login-error" class="badge badge-danger" style="display:none; width:100%; padding:10px; margin-bottom:16px; text-align:center;"></div>
 
             <div class="form-group">
-              <label class="form-label" for="login-username">Username</label>
-              <div class="input-wrapper">
-                <span class="input-icon">👤</span>
-                <input type="text" id="login-username" class="form-input icon-input" value="admin" placeholder="Enter username" required autocomplete="username">
-              </div>
+              <label class="form-label" for="login-username">Username or Email</label>
+              <input type="text" id="login-username" class="form-input" value="admin" placeholder="Enter username or email" required>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="margin-bottom:24px;">
               <label class="form-label" for="login-password">Password</label>
-              <div class="input-wrapper">
-                <span class="input-icon">🔒</span>
-                <input type="password" id="login-password" class="form-input icon-input" value="admin123" placeholder="Enter password" required autocomplete="current-password">
-              </div>
+              <input type="password" id="login-password" class="form-input" value="admin123" placeholder="Enter password" required>
             </div>
 
-            <button type="submit" id="login-submit-btn" class="btn btn-login">
-              <span id="login-btn-text">Sign In</span>
+            <button type="submit" id="login-submit-btn" class="btn btn-primary" style="width:100%; height:46px; font-size:15px;">
+              Sign In to EduTrack
             </button>
 
-            <!-- Quick Demo Login Autofill Chips -->
-            <div class="demo-chips-container">
-              <span class="demo-title">Quick Demo Login:</span>
-              <div class="demo-chips">
-                <button type="button" class="demo-chip" onclick="quickFillLogin('admin', 'admin123')">🔑 Admin</button>
-                <button type="button" class="demo-chip" onclick="quickFillLogin('student', 'student123')">🎓 Student</button>
+            <!-- Demo Quick Fill -->
+            <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border-color); text-align:center;">
+              <span style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:10px;">Quick Demo Autofill:</span>
+              <div style="display:flex; justify-content:center; gap:8px;">
+                <button type="button" class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="quickFillLogin('admin', 'admin123')">🔑 Admin</button>
+                <button type="button" class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="quickFillLogin('prof_sharma', 'faculty123')">👨‍🏫 Faculty</button>
+                <button type="button" class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="quickFillLogin('student1', 'student123')">🎓 Student</button>
               </div>
             </div>
           </form>
@@ -70,466 +63,427 @@
       </div>
     </div>
 
-    <!-- MAIN APP SCREEN -->
-    <div id="main-app" class="main-app" style="display: none;">
-
-      <!-- PURPLE APP HEADER -->
-      <header class="android-header">
-        <div class="brand-info">
-          <button class="menu-btn-icon">☰</button>
+    <!-- MAIN APP SCREEN (SIDEBAR + CONTENT) -->
+    <div id="main-app" class="app-container" style="display: none;">
+      
+      <!-- DESKTOP / RESPONSIVE SIDEBAR -->
+      <aside class="app-sidebar" id="app-sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-icon">🎓</div>
           <div>
-            <div class="brand-title" id="header-page-title">Dashboard</div>
+            <div class="brand-title">EduTrack</div>
+            <div class="brand-tagline">Track. Understand. Improve.</div>
           </div>
         </div>
 
-        <!-- Desktop Navigation Tabs -->
-        <nav class="desktop-nav">
-          <button class="desktop-nav-link active" data-tab="dashboard" onclick="switchTab('dashboard')">Dashboard</button>
-          <button class="desktop-nav-link" data-tab="students" onclick="switchTab('students')">Students</button>
-          <button class="desktop-nav-link" data-tab="attendance" onclick="switchTab('attendance')">Attendance</button>
-          <button class="desktop-nav-link" data-tab="marks" onclick="switchTab('marks')">Marks</button>
-          <button class="desktop-nav-link" data-tab="profile" onclick="switchTab('profile')">Profile</button>
-          <button class="desktop-nav-link" data-tab="add-student" onclick="switchTab('add-student')">➕ Add Student</button>
+        <nav class="sidebar-menu">
+          <div class="sidebar-label">Academic Portal</div>
+          <button class="sidebar-item active" data-tab="dashboard" onclick="switchTab('dashboard')">
+            <span class="item-icon">🏠</span> Dashboard
+          </button>
+          <button class="sidebar-item" data-tab="students" onclick="switchTab('students')">
+            <span class="item-icon">👨‍🎓</span> Students
+          </button>
+          <button class="sidebar-item" data-tab="faculty" onclick="switchTab('faculty')">
+            <span class="item-icon">👨‍🏫</span> Faculty
+          </button>
+          <button class="sidebar-item" data-tab="subjects" onclick="switchTab('subjects')">
+            <span class="item-icon">📚</span> Subjects
+          </button>
+          <button class="sidebar-item" data-tab="marks" onclick="switchTab('marks')">
+            <span class="item-icon">📝</span> Marks
+          </button>
+          <button class="sidebar-item" data-tab="attendance" onclick="switchTab('attendance')">
+            <span class="item-icon">📅</span> Attendance
+          </button>
+          <button class="sidebar-item" data-tab="performance" onclick="switchTab('performance')">
+            <span class="item-icon">📊</span> Performance
+          </button>
+          <button class="sidebar-item" data-tab="reports" onclick="switchTab('reports')">
+            <span class="item-icon">📄</span> Reports
+          </button>
+          <button class="sidebar-item" data-tab="profile" onclick="switchTab('profile')">
+            <span class="item-icon">👤</span> Profile
+          </button>
         </nav>
 
-        <div class="header-actions">
-          <button class="btn-header-add" onclick="switchTab('add-student')">➕ Add Student</button>
-          <button class="header-icon-btn" title="Notifications">🔔</button>
+        <div class="sidebar-footer">
+          <button class="theme-toggle-btn" onclick="toggleTheme()">
+            <span id="theme-toggle-label">🌙 Dark Mode</span>
+            <span id="theme-toggle-icon">☀️</span>
+          </button>
+          <button class="btn btn-outline" style="width:100%; color:var(--danger);" onclick="logout()">
+            <span>🚪 Logout</span>
+          </button>
         </div>
-      </header>
+      </aside>
 
-      <!-- MAIN CONTENT VIEW AREA -->
-      <main class="app-content">
-
-        <!-- VIEW 1: DASHBOARD -->
-        <section id="view-dashboard" class="view-section active">
-          <!-- Welcome Banner Card -->
-          <div class="welcome-card">
-            <div class="welcome-text">
-              <div class="welcome-greeting">Welcome,</div>
-              <div class="welcome-name" id="dashboard-user-name">Admin</div>
-              <div class="welcome-desc">Manage students and keep track of their academic progress.</div>
-            </div>
-            <img src="./img/logo.png" alt="Academic Illustration" class="welcome-illustration">
+      <!-- MAIN CONTENT WRAPPER -->
+      <main class="main-wrapper">
+        <header class="top-navbar">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <button class="btn btn-outline mobile-menu-btn" style="display:none; padding:6px 10px;" onclick="toggleSidebar()">☰</button>
+            <h1 class="nav-page-title" id="header-page-title">Dashboard</h1>
           </div>
 
-          <!-- 4 Stat Cards Grid (2x2) -->
-          <div class="stat-grid">
-            <div class="stat-box">
-              <div class="stat-icon-wrapper stat-icon-purple">👥</div>
-              <div class="stat-info">
-                <span class="stat-val" id="stat-total-students">120</span>
-                <span class="stat-label">Total Students</span>
-              </div>
-            </div>
-
-            <div class="stat-box">
-              <div class="stat-icon-wrapper stat-icon-green">👩‍🏫</div>
-              <div class="stat-info">
-                <span class="stat-val">18</span>
-                <span class="stat-label">Teachers</span>
-              </div>
-            </div>
-
-            <div class="stat-box">
-              <div class="stat-icon-wrapper stat-icon-orange">📈</div>
-              <div class="stat-info">
-                <span class="stat-val" id="stat-avg-attendance">92%</span>
-                <span class="stat-label">Attendance</span>
-              </div>
-            </div>
-
-            <div class="stat-box">
-              <div class="stat-icon-wrapper stat-icon-cyan">📊</div>
-              <div class="stat-info">
-                <span class="stat-val" id="stat-avg-marks">78.5%</span>
-                <span class="stat-label">Avg. Marks</span>
+          <div class="nav-actions">
+            <button class="btn btn-primary" onclick="switchTab('add-student')">➕ Add Student</button>
+            <div class="user-profile-badge">
+              <div class="user-avatar" id="user-avatar-initials">R</div>
+              <div class="user-info-text">
+                <span class="user-name" id="user-display-name">Rahul Sharma</span>
+                <span class="user-role" id="user-display-role">Student</span>
               </div>
             </div>
           </div>
+        </header>
 
-          <!-- Recent Students Section -->
-          <div class="section-header-row">
-            <h3 class="section-header-title">Recent Students</h3>
-            <a href="#" class="section-link-action" onclick="switchTab('students')">View All</a>
-          </div>
-
-          <div id="recent-students-container">
-            <!-- Dynamically Rendered Recent Students -->
-          </div>
-        </section>
-
-        <!-- VIEW 2: STUDENTS -->
-        <section id="view-students" class="view-section">
-          <div class="search-filter-row">
-            <div class="search-input-box">
-              <span class="search-icon">🔍</span>
-              <input type="text" id="student-search-input" placeholder="Search students...">
+        <div class="content-body">
+          
+          <!-- TAB 1: DASHBOARD -->
+          <section id="tab-dashboard" class="tab-content active">
+            <div class="welcome-banner">
+              <h2 class="welcome-title" id="dashboard-greeting">Good Morning, Rahul 👋</h2>
+              <p class="welcome-subtitle">Here is your academic overview for Semester 5</p>
             </div>
-            <button class="filter-btn-square" title="Filter">🔽</button>
-            <button class="btn-primary-add-student" onclick="switchTab('add-student')">➕ Add Student</button>
-          </div>
 
-          <div id="students-list-container">
-            <!-- Dynamically Rendered Students List -->
-          </div>
-        </section>
-
-        <!-- VIEW 3: ATTENDANCE -->
-        <section id="view-attendance" class="view-section">
-          <!-- Date Selector Card -->
-          <div class="date-selector-card">
-            <button class="date-arrow-btn">◀</button>
-            <div class="date-display-text">📅 <span id="attendance-date-val">02 Sep 2025</span></div>
-            <button class="date-arrow-btn">▶</button>
-          </div>
-
-          <!-- Class & Section Dropdown Filters -->
-          <div style="display: flex; gap: 10px; margin-bottom: 14px;">
-            <div class="form-group" style="flex: 1;">
-              <select id="attendance-class-select" class="form-select">
-                <option value="ALL">All Classes</option>
-                <option value="BCA - 1" selected>Class: BCA - 1</option>
-                <option value="CSE - 1">Class: CSE - 1</option>
-                <option value="ECE - 1">Class: ECE - 1</option>
-              </select>
-            </div>
-            <div class="form-group" style="flex: 1;">
-              <select id="attendance-section-select" class="form-select">
-                <option value="ALL">All Sections</option>
-                <option value="Section A" selected>Section A</option>
-                <option value="Section B">Section B</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Student Attendance List -->
-          <div id="attendance-students-container">
-            <!-- Dynamically Rendered Attendance List -->
-          </div>
-
-          <button class="btn-primary-action" onclick="saveAttendance()">Save Attendance</button>
-        </section>
-
-        <!-- VIEW 4: MARKS -->
-        <section id="view-marks" class="view-section">
-          <div style="display: flex; gap: 10px; margin-bottom: 14px;">
-            <div class="form-group" style="flex: 1;">
-              <select id="marks-class-select" class="form-select">
-                <option value="BCA-1">Class: BCA - 1</option>
-                <option value="CSE-1">Class: CSE - 1</option>
-              </select>
-            </div>
-            <div class="form-group" style="flex: 1;">
-              <select id="marks-sem-select" class="form-select">
-                <option value="1">Semester: 1</option>
-                <option value="2">Semester: 2</option>
-              </select>
-            </div>
-          </div>
-
-          <div id="marks-students-container">
-            <!-- Dynamically Rendered Marks List -->
-          </div>
-        </section>
-
-        <!-- VIEW 5: PROFILE -->
-        <section id="view-profile" class="view-section">
-          <!-- Profile Header Card -->
-          <div class="profile-header-card">
-            <img src="./img/logo.png" alt="User Profile Avatar" class="profile-avatar-large" id="profile-avatar-img">
-            <div class="profile-user-name" id="profile-name">Admin User</div>
-            <div class="profile-user-email" id="profile-email">admin@college.edu</div>
-          </div>
-
-          <!-- Settings Menu List -->
-          <div class="settings-group-card">
-            <div class="settings-item-row" onclick="openModal('personal-info-modal')">
-              <div class="settings-item-left"><span class="settings-item-icon">👤</span> Personal Information</div>
-              <span style="color: var(--text-muted);">❯</span>
-            </div>
-            <div class="settings-item-row" onclick="openModal('change-password-modal')">
-              <div class="settings-item-left"><span class="settings-item-icon">🔒</span> Change Password</div>
-              <span style="color: var(--text-muted);">❯</span>
-            </div>
-            <div class="settings-item-row" onclick="openModal('notifications-modal')">
-              <div class="settings-item-left"><span class="settings-item-icon">🔔</span> Notifications</div>
-              <span style="color: var(--text-muted);">❯</span>
-            </div>
-            <div class="settings-item-row" onclick="openModal('about-app-modal')">
-              <div class="settings-item-left"><span class="settings-item-icon">ℹ️</span> About App</div>
-              <span style="color: var(--text-muted);">❯</span>
-            </div>
-            <div class="settings-item-row" id="logout-btn">
-              <div class="settings-item-left settings-item-danger"><span class="settings-item-icon">🚪</span> Logout</div>
-              <span style="color: var(--danger-text);">❯</span>
-            </div>
-          </div>
-        </section>
-
-        <!-- VIEW 6: ADD STUDENT (SCREEN 3 MATCH) -->
-        <section id="view-add-student" class="view-section">
-          <div class="card-section">
-            <h3 class="section-header-title" style="margin-bottom: 16px;">Add New Student</h3>
-            <form id="add-student-view-form">
-              <input type="file" id="photo-upload-input-view" accept="image/*" style="display:none;">
-              <div class="photo-upload-placeholder" onclick="document.getElementById('photo-upload-input-view').click()">
-                <span class="photo-upload-icon" id="photo-upload-icon-view">📷</span>
-                <span id="photo-upload-label-view">Add Photo</span>
-              </div>
-
-              <div class="form-group" style="margin-bottom: 12px;">
-                <div class="input-wrapper">
-                  <span class="input-icon">👤</span>
-                  <input type="text" id="add-std-name-v" class="form-input icon-input" placeholder="Full Name" required>
+            <!-- Metrics Grid -->
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-header">
+                  <span class="metric-label">GPA</span>
+                  <div class="metric-icon-pill" style="background:var(--primary-light); color:var(--primary);">📈</div>
+                </div>
+                <div class="metric-value" id="dash-gpa">8.72</div>
+                <div class="metric-trend trend-up">
+                  <span>↑ 0.4 vs Last Sem</span>
+                  <span class="badge badge-success" style="margin-left:auto;">Very Good</span>
                 </div>
               </div>
 
-              <div class="form-group" style="margin-bottom: 12px;">
-                <div class="input-wrapper">
-                  <span class="input-icon">💳</span>
-                  <input type="text" id="add-std-enrollment-v" class="form-input icon-input" placeholder="Roll Number" required>
+              <div class="metric-card">
+                <div class="metric-header">
+                  <span class="metric-label">CGPA</span>
+                  <div class="metric-icon-pill" style="background:var(--success-bg); color:var(--success);">🏆</div>
+                </div>
+                <div class="metric-value" id="dash-cgpa">8.50</div>
+                <div class="metric-trend trend-up">
+                  <span>Cumulative Grade</span>
+                  <span class="badge badge-success" style="margin-left:auto;">Excellent</span>
                 </div>
               </div>
 
-              <div class="form-group" style="margin-bottom: 12px;">
-                <select id="add-std-dept-v" class="form-select" required>
-                  <option value="BCA - 1">Class: BCA - 1</option>
-                  <option value="CSE - 1">Class: CSE - 1</option>
-                  <option value="ECE - 1">Class: ECE - 1</option>
-                </select>
-              </div>
-
-              <div class="form-group" style="margin-bottom: 12px;">
-                <select id="add-std-sem-v" class="form-select" required>
-                  <option value="Section A">Section A</option>
-                  <option value="Section B">Section B</option>
-                </select>
-              </div>
-
-              <div class="form-group" style="margin-bottom: 12px;">
-                <input type="text" id="add-std-dob-v" class="form-input" placeholder="Date of Birth (DD/MM/YYYY)">
-              </div>
-
-              <div class="form-group" style="margin-bottom: 12px;">
-                <div class="input-wrapper">
-                  <span class="input-icon">📞</span>
-                  <input type="tel" id="add-std-phone-v" class="form-input icon-input" placeholder="Phone Number">
+              <div class="metric-card">
+                <div class="metric-header">
+                  <span class="metric-label">Attendance</span>
+                  <div class="metric-icon-pill" style="background:var(--warning-bg); color:var(--warning);">📅</div>
+                </div>
+                <div class="metric-value" id="dash-attendance">86.4%</div>
+                <div class="metric-trend trend-up">
+                  <span>✓ Above 75% Threshold</span>
+                  <span class="badge badge-success" style="margin-left:auto;">Good</span>
                 </div>
               </div>
 
-              <button type="submit" class="btn-primary-action">Save Student</button>
-            </form>
-          </div>
-        </section>
+              <div class="metric-card">
+                <div class="metric-header">
+                  <span class="metric-label">Class Rank</span>
+                  <div class="metric-icon-pill" style="background:var(--info-bg); color:var(--info);">🏅</div>
+                </div>
+                <div class="metric-value" id="dash-rank">#1</div>
+                <div class="metric-trend trend-up">
+                  <span>Top Performer in CSE</span>
+                </div>
+              </div>
+            </div>
 
+            <!-- Subject Performance Breakdown Table -->
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3 class="panel-title">Enrolled Subject Breakdown</h3>
+                <span class="badge badge-info">Semester 5</span>
+              </div>
+              
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Subject Code</th>
+                      <th>Subject Name</th>
+                      <th>Attendance</th>
+                      <th>Marks</th>
+                      <th>Grade</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboard-subject-rows">
+                    <tr>
+                      <td><strong>CS501</strong></td>
+                      <td>Data Structures &amp; Algorithms</td>
+                      <td>92.5%</td>
+                      <td>91.0 / 100</td>
+                      <td><span class="grade-chip grade-aplus">A+</span></td>
+                      <td><span class="badge badge-success">Good</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>CS502</strong></td>
+                      <td>Database Systems</td>
+                      <td>88.0%</td>
+                      <td>84.0 / 100</td>
+                      <td><span class="grade-chip grade-a">A</span></td>
+                      <td><span class="badge badge-success">Good</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>CS503</strong></td>
+                      <td>Operating Systems</td>
+                      <td>78.5%</td>
+                      <td>76.0 / 100</td>
+                      <td><span class="grade-chip grade-bplus">B+</span></td>
+                      <td><span class="badge badge-warning">Monitor</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 2: STUDENTS DIRECTORY -->
+          <section id="tab-students" class="tab-content" style="display:none;">
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3 class="panel-title">Enrolled Students Directory</h3>
+                <button class="btn btn-primary" onclick="switchTab('add-student')">➕ Register Student</button>
+              </div>
+
+              <div class="form-group" style="margin-bottom:20px;">
+                <input type="text" id="search-student-input" class="form-input" placeholder="🔍 Search student by name, enrollment no, or email..." onkeyup="filterStudents()">
+              </div>
+
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Enrollment No</th>
+                      <th>Student Name</th>
+                      <th>Email</th>
+                      <th>Department</th>
+                      <th>Semester</th>
+                    </tr>
+                  </thead>
+                  <tbody id="students-table-body">
+                    <!-- Dynamic Rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 3: FACULTY DIRECTORY -->
+          <section id="tab-faculty" class="tab-content" style="display:none;">
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3 class="panel-title">Faculty Members &amp; Course Allocations</h3>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Faculty Name</th>
+                      <th>Email</th>
+                      <th>Department</th>
+                      <th>Assigned Subjects</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>1</td>
+                      <td><strong>Dr. Rajesh Sharma</strong></td>
+                      <td>prof.sharma@college.edu</td>
+                      <td>Computer Science &amp; Engineering</td>
+                      <td>CS501 (DSA), CS502 (DBMS)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 4: SUBJECTS CURRICULUM -->
+          <section id="tab-subjects" class="tab-content" style="display:none;">
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3 class="panel-title">Curriculum Subjects</h3>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Code</th>
+                      <th>Subject Name</th>
+                      <th>Semester</th>
+                      <th>Credits</th>
+                    </tr>
+                  </thead>
+                  <tbody id="subjects-table-body">
+                    <!-- Dynamic Subject Rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 5: MARKS MANAGEMENT -->
+          <section id="tab-marks" class="tab-content" style="display:none;">
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3 class="panel-title">Student Academic Marks Breakdown</h3>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Subject</th>
+                      <th>Internal (30)</th>
+                      <th>Assignment (20)</th>
+                      <th>Practical (20)</th>
+                      <th>Final Exam (50)</th>
+                      <th>Total Score</th>
+                      <th>Grade</th>
+                    </tr>
+                  </thead>
+                  <tbody id="marks-table-body">
+                    <!-- Dynamic Marks Rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 6: ATTENDANCE TRACKER -->
+          <section id="tab-attendance" class="tab-content" style="display:none;">
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3 class="panel-title">Subject Attendance Monitoring</h3>
+                <span class="badge badge-warning">75% Min Required</span>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Subject</th>
+                      <th>Classes Held</th>
+                      <th>Classes Attended</th>
+                      <th>Attendance %</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="attendance-table-body">
+                    <!-- Dynamic Attendance Rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 7: PERFORMANCE ANALYTICS -->
+          <section id="tab-performance" class="tab-content" style="display:none;">
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3 class="panel-title">Performance Analytics Summary</h3>
+              </div>
+              <div style="padding:20px; background:var(--bg-app); border-radius:var(--radius-card); margin-bottom:20px;">
+                <h4 style="font-size:16px; font-weight:700; color:var(--text-main); margin-bottom:12px;">Overall Academic Score</h4>
+                <div style="width:100%; height:12px; background:var(--border-color); border-radius:6px; overflow:hidden; margin-bottom:8px;">
+                  <div style="width:82.4%; height:100%; background:var(--primary); border-radius:6px;"></div>
+                </div>
+                <span style="font-size:13px; color:var(--text-muted); font-weight:600;">Overall Score: 82.4%</span>
+              </div>
+
+              <div style="padding:20px; background:var(--bg-app); border-radius:var(--radius-card);">
+                <h4 style="font-size:16px; font-weight:700; color:var(--text-main); margin-bottom:12px;">Total Attendance Percentage</h4>
+                <div style="width:100%; height:12px; background:var(--border-color); border-radius:6px; overflow:hidden; margin-bottom:8px;">
+                  <div style="width:86.4%; height:100%; background:var(--success); border-radius:6px;"></div>
+                </div>
+                <span style="font-size:13px; color:var(--text-muted); font-weight:600;">Total Attendance: 86.4%</span>
+              </div>
+          </section>
+
+          <!-- TAB 8: ADD STUDENT FORM -->
+          <section id="tab-add-student" class="tab-content" style="display:none;">
+            <div class="panel-card" style="max-width:600px; margin:0 auto;">
+              <div class="panel-header">
+                <h3 class="panel-title">Register New Student Profile</h3>
+              </div>
+              <form id="add-student-form">
+                <div class="form-group">
+                  <label class="form-label">First Name</label>
+                  <input type="text" id="add-first-name" class="form-input" placeholder="e.g. Rahul" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Last Name</label>
+                  <input type="text" id="add-last-name" class="form-input" placeholder="e.g. Sharma" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Enrollment Number</label>
+                  <input type="text" id="add-enrollment" class="form-input" placeholder="e.g. CS2026099" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Email Address</label>
+                  <input type="email" id="add-email" class="form-input" placeholder="e.g. rahul@college.edu" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; height:46px; font-size:15px; margin-top:10px;">
+                  Register Student
+                </button>
+              </form>
+            </div>
+          </section>
+
+          <!-- TAB 9: PROFILE -->
+          <section id="tab-profile" class="tab-content" style="display:none;">
+            <div class="panel-card" style="max-width:500px; margin:0 auto; text-align:center;">
+              <div style="width:80px; height:80px; border-radius:40px; background:var(--primary); color:#ffffff; font-size:32px; font-weight:800; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">R</div>
+              <h2 style="font-size:22px; font-weight:800; color:var(--text-main); margin-bottom:4px;" id="profile-full-name">Rahul Sharma</h2>
+              <span class="badge badge-info" style="margin-bottom:20px;">Student Account</span>
+
+              <div style="text-align:left; border-top:1px solid var(--border-color); padding-top:20px; display:flex; flex-direction:column; gap:12px;">
+                <div><strong style="color:var(--text-muted);">Enrollment No:</strong> <span id="profile-enrollment">CS2026001</span></div>
+                <div><strong style="color:var(--text-muted);">Email:</strong> <span id="profile-email">rahul.sharma@college.edu</span></div>
+                <div><strong style="color:var(--text-muted);">Department:</strong> Computer Science &amp; Engineering</div>
+                <div><strong style="color:var(--text-muted);">Course &amp; Sem:</strong> B.Tech - Semester 5</div>
+              </div>
+            </div>
+          </section>
+
+        </div>
       </main>
 
-      <!-- FLOATING ACTION BUTTON (PURPLE FAB FOR ADD STUDENT) -->
-      <button id="fab-add-btn" class="fab-btn" title="Add Student" onclick="switchTab('add-student')">+</button>
-
-      <!-- BOTTOM NAVIGATION BAR (5 TABS SPEC MATCH) -->
-      <nav class="bottom-nav">
-        <button id="nav-dashboard" class="nav-item active" onclick="switchTab('dashboard')">
+      <!-- MOBILE BOTTOM NAVIGATION -->
+      <nav class="mobile-bottom-nav">
+        <button class="bottom-nav-item active" data-tab="dashboard" onclick="switchTab('dashboard')">
           <span class="nav-icon">🏠</span>
-          <span class="nav-label">Dashboard</span>
+          <span>Home</span>
         </button>
-        <button id="nav-students" class="nav-item" onclick="switchTab('students')">
-          <span class="nav-icon">👥</span>
-          <span class="nav-label">Students</span>
+        <button class="bottom-nav-item" data-tab="marks" onclick="switchTab('marks')">
+          <span class="nav-icon">📝</span>
+          <span>Marks</span>
         </button>
-        <button id="nav-attendance" class="nav-item" onclick="switchTab('attendance')">
+        <button class="bottom-nav-item" data-tab="attendance" onclick="switchTab('attendance')">
           <span class="nav-icon">📅</span>
-          <span class="nav-label">Attendance</span>
+          <span>Attendance</span>
         </button>
-        <button id="nav-marks" class="nav-item" onclick="switchTab('marks')">
+        <button class="bottom-nav-item" data-tab="performance" onclick="switchTab('performance')">
           <span class="nav-icon">📊</span>
-          <span class="nav-label">Marks</span>
+          <span>Performance</span>
         </button>
-        <button id="nav-profile" class="nav-item" onclick="switchTab('profile')">
+        <button class="bottom-nav-item" data-tab="profile" onclick="switchTab('profile')">
           <span class="nav-icon">👤</span>
-          <span class="nav-label">Profile</span>
+          <span>Profile</span>
         </button>
       </nav>
 
     </div>
-
-    <!-- MODAL: ADD STUDENT (SCREEN 3 MATCH) -->
-    <div id="add-student-modal" class="modal-overlay">
-      <div class="modal-sheet">
-        <div class="modal-header">
-          <h3 class="modal-title">Add Student</h3>
-          <button class="modal-close" onclick="closeModal('add-student-modal')">✕</button>
-        </div>
-
-        <form id="add-student-form">
-          <input type="file" id="photo-upload-input" accept="image/*" style="display:none;">
-          <div class="photo-upload-placeholder" onclick="document.getElementById('photo-upload-input').click()">
-            <span class="photo-upload-icon" id="photo-upload-icon">📷</span>
-            <span id="photo-upload-label">Add Photo</span>
-          </div>
-
-          <div class="form-group" style="margin-bottom: 12px;">
-            <div class="input-wrapper">
-              <span class="input-icon">👤</span>
-              <input type="text" id="add-std-name" class="form-input icon-input" placeholder="Full Name" required>
-            </div>
-          </div>
-
-          <div class="form-group" style="margin-bottom: 12px;">
-            <div class="input-wrapper">
-              <span class="input-icon">💳</span>
-              <input type="text" id="add-std-enrollment" class="form-input icon-input" placeholder="Roll Number" required>
-            </div>
-          </div>
-
-          <div class="form-group" style="margin-bottom: 12px;">
-            <select id="add-std-dept" class="form-select" required>
-              <option value="BCA - 1">Class: BCA - 1</option>
-              <option value="CSE - 1">Class: CSE - 1</option>
-              <option value="ECE - 1">Class: ECE - 1</option>
-            </select>
-          </div>
-
-          <div class="form-group" style="margin-bottom: 12px;">
-            <select id="add-std-sem" class="form-select" required>
-              <option value="Section A">Section A</option>
-              <option value="Section B">Section B</option>
-            </select>
-          </div>
-
-          <div class="form-group" style="margin-bottom: 12px;">
-            <input type="text" id="add-std-course" class="form-input" placeholder="Date of Birth (DD/MM/YYYY)">
-          </div>
-
-          <div class="form-group" style="margin-bottom: 12px;">
-            <div class="input-wrapper">
-              <span class="input-icon">📞</span>
-              <input type="tel" id="add-std-phone" class="form-input icon-input" placeholder="Phone Number">
-            </div>
-          </div>
-
-          <button type="submit" class="btn-primary-action">Save Student</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- MODAL: REPORT CARD -->
-    <div id="report-card-modal" class="modal-overlay">
-      <div class="modal-sheet">
-        <div class="modal-header">
-          <h3 class="modal-title">Student Report Card</h3>
-          <button class="modal-close" onclick="closeModal('report-card-modal')">✕</button>
-        </div>
-        <div id="report-card-content">
-          <!-- Dynamically populated report card details -->
-        </div>
-      </div>
-    </div>
-
-    <!-- MODAL: PERSONAL INFORMATION -->
-    <div id="personal-info-modal" class="modal-overlay">
-      <div class="modal-sheet">
-        <div class="modal-header">
-          <h3 class="modal-title">Personal Information</h3>
-          <button class="modal-close" onclick="closeModal('personal-info-modal')">✕</button>
-        </div>
-        <form id="personal-info-form">
-          <div class="form-group" style="margin-bottom: 12px;">
-            <label class="form-label">Full Name</label>
-            <input type="text" id="edit-profile-name" class="form-input" value="Admin User" required>
-          </div>
-          <div class="form-group" style="margin-bottom: 12px;">
-            <label class="form-label">Email Address</label>
-            <input type="email" id="edit-profile-email" class="form-input" value="admin@college.edu" required>
-          </div>
-          <div class="form-group" style="margin-bottom: 12px;">
-            <label class="form-label">Role</label>
-            <input type="text" class="form-input" value="System Administrator" disabled readonly style="opacity: 0.7;">
-          </div>
-          <button type="submit" class="btn-primary-action">Save Changes</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- MODAL: CHANGE PASSWORD -->
-    <div id="change-password-modal" class="modal-overlay">
-      <div class="modal-sheet">
-        <div class="modal-header">
-          <h3 class="modal-title">Change Password</h3>
-          <button class="modal-close" onclick="closeModal('change-password-modal')">✕</button>
-        </div>
-        <form id="change-password-form">
-          <div class="form-group" style="margin-bottom: 12px;">
-            <label class="form-label">Current Password</label>
-            <input type="password" id="current-pass" class="form-input" placeholder="Enter current password" required>
-          </div>
-          <div class="form-group" style="margin-bottom: 12px;">
-            <label class="form-label">New Password</label>
-            <input type="password" id="new-pass" class="form-input" placeholder="Enter new password" required>
-          </div>
-          <div class="form-group" style="margin-bottom: 12px;">
-            <label class="form-label">Confirm New Password</label>
-            <input type="password" id="confirm-pass" class="form-input" placeholder="Confirm new password" required>
-          </div>
-          <button type="submit" class="btn-primary-action">Update Password</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- MODAL: NOTIFICATIONS -->
-    <div id="notifications-modal" class="modal-overlay">
-      <div class="modal-sheet">
-        <div class="modal-header">
-          <h3 class="modal-title">Notification Settings</h3>
-          <button class="modal-close" onclick="closeModal('notifications-modal')">✕</button>
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px;">
-          <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div>
-              <div style="font-weight: 700; font-size: 14px;">Push Notifications</div>
-              <div style="font-size: 11px; color: var(--text-muted);">Receive instant mobile updates</div>
-            </div>
-            <input type="checkbox" checked style="width: 20px; height: 20px; accent-color: var(--primary);">
-          </div>
-          <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div>
-              <div style="font-weight: 700; font-size: 14px;">Email Reports</div>
-              <div style="font-size: 11px; color: var(--text-muted);">Weekly student performance summary</div>
-            </div>
-            <input type="checkbox" checked style="width: 20px; height: 20px; accent-color: var(--primary);">
-          </div>
-          <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div>
-              <div style="font-weight: 700; font-size: 14px;">Low Attendance Warnings</div>
-              <div style="font-size: 11px; color: var(--text-muted);">Alert when attendance drops below 75%</div>
-            </div>
-            <input type="checkbox" checked style="width: 20px; height: 20px; accent-color: var(--primary);">
-          </div>
-        </div>
-        <button type="button" class="btn-primary-action" onclick="closeModal('notifications-modal'); showToast('Notification preferences saved!', 'success');">Save Preferences</button>
-      </div>
-    </div>
-
-    <!-- MODAL: ABOUT APP -->
-    <div id="about-app-modal" class="modal-overlay">
-      <div class="modal-sheet" style="text-align: center;">
-        <div class="modal-header">
-          <h3 class="modal-title">About Application</h3>
-          <button class="modal-close" onclick="closeModal('about-app-modal')">✕</button>
-        </div>
-        <div class="logo-ring" style="margin: 10px auto;">
-          <img src="./img/logo.png" alt="Logo" class="login-logo-img">
-        </div>
-        <h4 style="font-size: 18px; font-weight: 800; margin-top: 8px;">Student Tracker</h4>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Version 2.2 (Build 11)</p>
-        <p style="font-size: 13px; line-height: 1.5; color: var(--text-main); margin-bottom: 20px;">
-          Comprehensive mobile student management & attendance tracking system built for reliability and speed.
-        </p>
-        <button type="button" class="btn-primary-action" onclick="closeModal('about-app-modal')">Close</button>
-      </div>
-    </div>
-
   </div>
 
   <script src="./js/app.js"></script>

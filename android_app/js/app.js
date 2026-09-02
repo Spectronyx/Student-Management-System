@@ -767,3 +767,86 @@ function populateDeptSelect(selectId) {
 function esc(str) {
   return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme') || 'light';
+  const next = current === 'light' ? 'dark' : 'light';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('edutrack_theme', next);
+  
+  const label = document.getElementById('theme-toggle-label');
+  if (label) label.textContent = next === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('edutrack_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  const label = document.getElementById('theme-toggle-label');
+  if (label) label.textContent = saved === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('app-sidebar');
+  if (sidebar) sidebar.classList.toggle('open');
+}
+
+function quickFillLogin(u, p) {
+  const elU = document.getElementById('login-username');
+  const elP = document.getElementById('login-password');
+  if (elU) elU.value = u;
+  if (elP) elP.value = p;
+}
+
+function switchTab(tabId) {
+  state.activeTab = tabId;
+  document.querySelectorAll('.tab-content').forEach(el => {
+    el.style.display = 'none';
+    el.classList.remove('active');
+  });
+  const target = document.getElementById('tab-' + tabId);
+  if (target) {
+    target.style.display = 'block';
+    target.classList.add('active');
+  }
+
+  document.querySelectorAll('.sidebar-item').forEach(el => {
+    if (el.getAttribute('data-tab') === tabId) el.classList.add('active');
+    else el.classList.remove('active');
+  });
+
+  document.querySelectorAll('.bottom-nav-item').forEach(el => {
+    if (el.getAttribute('data-tab') === tabId) el.classList.add('active');
+    else el.classList.remove('active');
+  });
+
+  const headerTitle = document.getElementById('header-page-title');
+  if (headerTitle) {
+    const titleMap = {
+      'dashboard': 'Dashboard',
+      'students': 'Students Directory',
+      'faculty': 'Faculty Portal',
+      'subjects': 'Curriculum Subjects',
+      'marks': 'Academic Marks',
+      'attendance': 'Attendance Report',
+      'performance': 'Performance Analytics',
+      'reports': 'System Reports',
+      'add-student': 'Register Student',
+      'profile': 'My Profile'
+    };
+    headerTitle.textContent = titleMap[tabId] || 'Dashboard';
+  }
+
+  const sidebar = document.getElementById('app-sidebar');
+  if (sidebar && sidebar.classList.contains('open')) sidebar.classList.remove('open');
+}
+
+function logout() {
+  localStorage.removeItem('tracker_user');
+  state.user = null;
+  showAuthScreen();
+  showToast('Logged out successfully', 'info');
+}
+
+document.addEventListener('DOMContentLoaded', initTheme);
+

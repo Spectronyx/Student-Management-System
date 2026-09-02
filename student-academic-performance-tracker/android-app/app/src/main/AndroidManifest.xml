@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.studenttracker">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="Academic Tracker"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.StudentTracker"
+        android:usesCleartextTraffic="true">
+
+        <!-- Login Activity (Launcher) -->
+        <activity
+            android:name=".ui.auth.LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Student Screens -->
+        <activity android:name=".ui.student.StudentDashboardActivity" android:exported="false" />
+        <activity android:name=".ui.student.MarksActivity" android:exported="false" />
+        <activity android:name=".ui.student.AttendanceActivity" android:exported="false" />
+        <activity android:name=".ui.student.PerformanceActivity" android:exported="false" />
+        <activity android:name=".ui.student.ProfileActivity" android:exported="false" />
+
+        <!-- Faculty Screens -->
+        <activity android:name=".ui.faculty.FacultyDashboardActivity" android:exported="false" />
+        <activity android:name=".ui.faculty.MarksManagementActivity" android:exported="false" />
+        <activity android:name=".ui.faculty.FacultyAttendanceActivity" android:exported="false" />
+
+        <!-- Admin Screens -->
+        <activity android:name=".ui.admin.AdminDashboardActivity" android:exported="false" />
+        <activity android:name=".ui.admin.StudentManagementActivity" android:exported="false" />
+        <activity android:name=".ui.admin.FacultyManagementActivity" android:exported="false" />
+        <activity android:name=".ui.admin.SubjectManagementActivity" android:exported="false" />
+        <activity android:name=".ui.admin.ReportsActivity" android:exported="false" />
+
+    </application>
+
+</manifest>

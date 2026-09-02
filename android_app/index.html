@@ -89,9 +89,11 @@
           <button class="desktop-nav-link" data-tab="attendance" onclick="switchTab('attendance')">Attendance</button>
           <button class="desktop-nav-link" data-tab="marks" onclick="switchTab('marks')">Marks</button>
           <button class="desktop-nav-link" data-tab="profile" onclick="switchTab('profile')">Profile</button>
+          <button class="desktop-nav-link" data-tab="add-student" onclick="switchTab('add-student')">➕ Add Student</button>
         </nav>
 
         <div class="header-actions">
+          <button class="btn-header-add" onclick="switchTab('add-student')">➕ Add Student</button>
           <button class="header-icon-btn" title="Notifications">🔔</button>
         </div>
       </header>
@@ -165,6 +167,7 @@
               <input type="text" id="student-search-input" placeholder="Search students...">
             </div>
             <button class="filter-btn-square" title="Filter">🔽</button>
+            <button class="btn-primary-add-student" onclick="switchTab('add-student')">➕ Add Student</button>
           </div>
 
           <div id="students-list-container">

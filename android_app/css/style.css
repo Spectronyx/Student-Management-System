@@ -215,6 +215,48 @@ html, body {
   margin-top: 6px;
 }
 
+.btn-header-add {
+  background: #ffffff;
+  color: var(--primary);
+  border: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.btn-header-add:hover {
+  background: #f0edff;
+  transform: translateY(-1px);
+}
+
+.btn-primary-add-student {
+  background: var(--primary);
+  color: #ffffff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(91, 70, 246, 0.25);
+  transition: background 0.2s ease;
+}
+
+.btn-primary-add-student:hover {
+  background: var(--primary-dark);
+}
+
 .demo-chips-container {
   margin-top: 18px;
   padding-top: 16px;

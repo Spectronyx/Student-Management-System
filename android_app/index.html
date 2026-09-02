@@ -81,7 +81,20 @@
             <div class="brand-subtitle" id="header-subtitle">Academic Performance</div>
           </div>
         </div>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="desktop-nav">
+          <button class="desktop-nav-link active" data-tab="dashboard" onclick="switchTab('dashboard')">Home</button>
+          <button class="desktop-nav-link" data-tab="students" onclick="switchTab('students')">Students</button>
+          <button class="desktop-nav-link" data-tab="marks" onclick="switchTab('marks')">Analytics</button>
+          <button class="desktop-nav-link" data-tab="rankings" onclick="switchTab('rankings')">Rankings</button>
+          <button class="desktop-nav-link" data-tab="profile" onclick="switchTab('profile')">Profile</button>
+        </nav>
+
         <div class="header-actions">
+          <button id="desktop-add-btn" class="btn btn-primary btn-sm desktop-only-btn" onclick="openModal('add-student-modal')">
+            <span>+ Add Student</span>
+          </button>
           <span id="network-status-pill" class="badge badge-online" onclick="syncOfflineQueue()">Online</span>
           <span id="user-role-badge" class="badge badge-role">Admin</span>
         </div>

@@ -982,3 +982,101 @@ body {
   color: var(--text-muted);
   font-size: 13px;
 }
+
+/* ============================================================================== */
+/* DESKTOP WEB APP vs MOBILE ANDROID APP SEPARATION */
+/* ============================================================================== */
+
+/* Base Desktop Nav Link Styles */
+.desktop-nav {
+  display: none;
+  align-items: center;
+  gap: 6px;
+}
+
+.desktop-nav-link {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.desktop-nav-link:hover {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.desktop-nav-link.active {
+  color: #818cf8;
+  background: rgba(99, 102, 241, 0.18);
+}
+
+.desktop-only-btn {
+  display: none;
+}
+
+/* 💻 DESKTOP / WEB APP MODE (Screens > 768px wide) */
+@media (min-width: 769px) {
+  .app-container {
+    max-width: 1140px !important;
+    margin: 0 auto !important;
+    border-left: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+  }
+
+  .android-header {
+    padding: 16px 24px !important;
+    background: #0f172a !important;
+  }
+
+  .desktop-nav {
+    display: flex !important;
+  }
+
+  .desktop-only-btn {
+    display: inline-flex !important;
+  }
+
+  /* Hide mobile navigation and mobile FAB button on desktop */
+  .bottom-nav {
+    display: none !important;
+  }
+
+  .fab-btn {
+    display: none !important;
+  }
+
+  .app-content {
+    padding: 24px 24px 40px !important;
+  }
+
+  /* 4-Column Metric Grid on Desktop */
+  .stat-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 16px !important;
+  }
+}
+
+/* 📱 MOBILE / ANDROID APP MODE (Screens <= 768px wide) */
+@media (max-width: 768px) {
+  .desktop-nav {
+    display: none !important;
+  }
+
+  .desktop-only-btn {
+    display: none !important;
+  }
+
+  .bottom-nav {
+    display: flex !important;
+  }
+
+  .fab-btn {
+    display: flex !important;
+  }
+}

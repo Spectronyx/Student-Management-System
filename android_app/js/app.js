@@ -388,11 +388,14 @@ function switchTab(tabId) {
   state.activeTab = tabId;
   document.querySelectorAll('.app-content .view-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.desktop-nav-link').forEach(d => {
+    if (d.getAttribute('data-tab') === tabId) d.classList.add('active');
+    else d.classList.remove('active');
+  });
   const sec = document.getElementById(`view-${tabId}`);
   if (sec) sec.classList.add('active');
   const nav = document.getElementById(`nav-${tabId}`);
   if (nav) nav.classList.add('active');
-  // Scroll content to top on tab switch
   window.scrollTo(0, 0);
   const content = document.querySelector('.app-content');
   if (content) content.scrollTop = 0;

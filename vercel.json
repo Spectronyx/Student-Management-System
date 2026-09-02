@@ -8,8 +8,32 @@
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/api/(.*)",
       "dest": "api.py"
+    },
+    {
+      "src": "/css/(.*)",
+      "dest": "/android_app/css/$1"
+    },
+    {
+      "src": "/js/(.*)",
+      "dest": "/android_app/js/$1"
+    },
+    {
+      "src": "/img/(.*)",
+      "dest": "/android_app/img/$1"
+    },
+    {
+      "src": "/sw.js",
+      "dest": "/android_app/sw.js"
+    },
+    {
+      "src": "/manifest.json",
+      "dest": "/android_app/manifest.json"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/android_app/index.html"
     }
   ]
 }

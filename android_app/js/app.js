@@ -401,6 +401,7 @@ function initEventListeners() {
       const name = document.getElementById('signup-name').value.trim();
       const username = document.getElementById('signup-username').value.trim();
       const email = document.getElementById('signup-email').value.trim();
+      const phone = (document.getElementById('signup-phone')?.value || '9876543210').trim();
       const role = document.getElementById('signup-role').value;
       const password = document.getElementById('signup-password').value.trim();
       const errorEl = document.getElementById('signup-error');
@@ -421,7 +422,7 @@ function initEventListeners() {
         const res = await fetch(`${API_BASE}/auth/signup`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, username, email, role, password })
+          body: JSON.stringify({ name, username, email, phone, role, password })
         });
         const responseData = await res.json();
 

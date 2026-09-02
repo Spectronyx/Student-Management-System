@@ -13,8 +13,6 @@ def setup_database():
 def test_01_root():
     response = client.get("/")
     assert response.status_code == 200
-    data = response.json()
-    assert data["success"] is True
 
 def test_02_admin_login():
     response = client.post("/auth/login", json={

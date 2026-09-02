@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>EduTrack | Academic Performance Tracker</title>
+  
+  <meta name="theme-color" content="#2563EB">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/png" href="./img/logo.png">
+  
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- AUTHENTICATION SCREEN (LOGIN) -->
+    <div id="auth-view" class="auth-screen" style="width:100%; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div class="login-wrapper" style="width:100%; max-width:400px;">
+        <div class="login-brand" style="text-align:center; margin-bottom:28px;">
+          <div style="width:72px; height:72px; margin:0 auto 16px; background:linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); color:#ffffff; border-radius:20px; display:flex; align-items:center; justify-content:center; font-size:36px; box-shadow:0 8px 24px rgba(37, 99, 235, 0.3);">🎓</div>
+          <h1 style="font-size:28px; font-weight:800; color:var(--text-main); letter-spacing:-0.5px;">EduTrack</h1>
+          <p style="font-size:13px; color:var(--text-muted); font-weight:500;">Track. Understand. Improve.</p>
+        </div>
+
+        <div class="panel-card" style="margin-bottom:0;">
+          <div style="margin-bottom:20px; text-align:center;">
+            <h2 style="font-size:20px; font-weight:700; color:var(--text-main);">Welcome Back</h2>
+            <p style="font-size:13px; color:var(--text-muted);">Sign in to access your academic tracker</p>
+          </div>
+
+          <form id="login-form">
+            <div id="login-error" class="badge badge-danger" style="display:none; width:100%; padding:10px; margin-bottom:16px; text-align:center;"></div>
+
+            <div class="form-group">
+              <label class="form-label" for="login-username">Username or Email</label>
+              <input type="text" id="login-username" class="form-input" value="admin" placeholder="Enter username or email" required>
+            </div>
+
+            <div class="form-group" style="margin-bottom:24px;">
+              <label class="form-label" for="login-password">Password</label>
+              <input type="password" id="login-password" class="form-input" value="admin123" placeholder="Enter password" required>
+            </div>
+
+            <button type="submit" id="login-submit-btn" class="btn btn-primary" style="width:100%; height:46px; font-size:15px;">
+              Sign In to EduTrack
+            </button>
+
+            <!-- Demo Quick Fill -->
+            <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border-color); text-align:center;">
+              <span style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:10px;">Quick Demo Autofill:</span>
+              <div style="display:flex; justify-content:center; gap:8px;">
+                <button type="button" class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="quickFillLogin('admin', 'admin123')">🔑 Admin</button>
+                <button type="button" class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="quickFillLogin('prof_sharma', 'faculty123')">👨‍🏫 Faculty</button>
+                <button type="button" class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="quickFillLogin('student1', 'student123')">🎓 Student</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN APP SCREEN (SIDEBAR + CONTENT) -->
+    <div id="main-app" class="app-container" style="display: none;">
+      
+      <!-- DESKTOP / RESPONSIVE SIDEBAR -->
+      <aside class="app-sidebar" id="app-sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-icon">🎓</div>
+          <div>
+            <div class="brand-title">EduTrack</div>
+            <div class="brand-tagline">Track. Understand. Improve.</div>
+          </div>
+        </div>
+
+        <nav class="sidebar-menu">
+          <div class="sidebar-label">Academic Portal</div>
+          <button class="sidebar-item active" data-tab="dashboard" onclick="switchTab('dashboard')">
+            <span class="item-icon">🏠</span> Dashboard
+          </button>
+          <button class="sidebar-item" data-tab="students" onclick="switchTab('students')">
+            <span class="item-icon">👨‍🎓</span> Students
+          </button>
+          <button class="sidebar-item" data-tab="faculty" onclick="switchTab('faculty')">
+            <span class="item-icon">👨‍🏫</span> Faculty
+          </button>
+          <button class="sidebar-item" data-tab="subjects" onclick="switchTab('subjects')">
+            <span class="item-icon">📚</span> Subjects
+          </button>
+          <button class="sidebar-item" data-tab="marks" onclick="switchTab('marks')">
+            <span class="item-icon">📝</span> Marks
+          </button>
+          <button class="sidebar-item" data-tab="attendance" onclick="switchTab('attendance')">
+            <span class="item-icon">📅</span> Attendance
+          </button>
+          <button class="sidebar-item" data-tab="performance" onclick="switchTab('performance')">
+            <span class="item-icon">📊</span> Performance
+          </button>
+          <button class="sidebar-item" data-tab="reports" onclick="switchTab('reports')">
+            <span class="item-icon">📄</span> Reports
+          </button>
+          <button class="sidebar-item" data-tab="profile" onclick="switchTab('profile')">
+            <span class="item-icon">👤</span> Profile
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <button class="theme-toggle-btn" onclick="toggleTheme()">
+            <span id="theme-toggle-label">🌙 Dark Mode</span>
+            <span id="theme-toggle-icon">☀️</span>
+          </button>
+          <button class="btn btn-outline" style="width:100%; color:var(--danger);" onclick="logout()">
+            <span>🚪 Logout</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT WRAPPER -->
+      <main class="main-wrapper">
+        <header class="top-navbar">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <button class="btn btn-outline mobile-menu-btn" style="display:none; padding:6px 10px;" onclick="toggleSidebar()">☰</button>
+            <h1 class="nav-page-title" id="header-page-title">Dashboard</h1>
+          </div>
+
+          <div class="nav-actions">
+            <button class="btn btn-primary" onclick="switchTab('add-student')">➕ Add Student</button>
+            <div class="user-profile-badge">
+              <div class="user-avatar" id="user-avatar-initials">R</div>
+              <div class="user-info-text">
+                <span class="user-name" id="user-display-name">Rahul Sharma</span>
+                <span class="user-role" id="user-display-role">Student</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div class="content-body">
+          
+          <!-- TAB 1: DASHBOARD -->
+          <section id="tab-dashboard" class="tab-content active">
+            <div class="welcome-banner">
+              <h2 class="welcome-title" id="dashboard-greeting">Good Morning, Rahul 👋</h2>
+              <p class="welcome-subtitle">Here is your academic overview for Semester 5</p>
+            </div>
+
+            <!-- Metrics Grid -->
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-header">
+                  <span class="metric-label">GPA</span>
+                  <div class="metric-icon-pill" style="background:var(--primary-light); color:var(--primary);">📈</div>
+                </div>
+                <div class="metric-value" id="dash-gpa">8.72</div>
+                <div class="metric-trend trend-up">
+                  <span>↑ 0.4 vs Last Sem</span>
+                  <span class="badge badge-success" style="margin-left:auto;">Very Good</span>
+                </div>
+              </div>
+
+              <div class="metric-card">
+                <div class="metric-header">
+                  <span class="metric-label">CGPA</span>
+                  <div class="metric-icon-pill" style="background:var(--success-bg); color:var(--success);">🏆</div>
+                </div>
+                <div class="metric-value" id="dash-cgpa">8.50</div>
+                <div class="metric-trend trend-up">
+                  <span>Cumulative Grade</span>
+                  <span class="badge badge-success" style="margin-left:auto;">Excellent</span>
+                </div>
+              </div>
+
+              <div class="metric-card">
+                <div class="metric-header">
+                  <span class="metric-label">Attendance</span>
+                  <div class="metric-icon-pill" style="background:var(--warning-bg); color:var(--warning);">📅</div>
+                </div>
+                <div class="metric-value" id="dash-attendance">86.4%</div>
+                <div class="metric-trend trend-up">
+                  <span>✓ Above 75% Threshold</span>
+                  <span class="badge badge-success" style="margin-left:auto;">Good</span>
+                </div>
+              </div>
+
+              <div class="metric-card">
+                <div class="metric-header">
+                  <span class="metric-label">Class Rank</span>
+                  <div class="metric-icon-pill" style="background:var(--info-bg); color:var(--info);">🏅</div>
+                </div>
+                <div class="metric-value" id="dash-rank">#1</div>
+                <div class="metric-trend trend-up">
+                  <span>Top Performer in CSE</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Subject Performance Breakdown Table -->
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3 class="panel-title">Enrolled Subject Breakdown</h3>
+                <span class="badge badge-info">Semester 5</span>
+              </div>
+              
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Subject Code</th>
+                      <th>Subject Name</th>
+                      <th>Attendance</th>
+                      <th>Marks</th>
+                      <th>Grade</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboard-subject-rows">
+                    <tr>
+                      <td><strong>CS501</strong></td>
+                      <td>Data Structures &amp; Algorithms</td>
+                      <td>92.5%</td>
+                      <td>91.0 / 100</td>
+                      <td><span class="grade-chip grade-aplus">A+</span></td>
+                      <td><span class="badge badge-success">Good</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>CS502</strong></td>
+                      <td>Database Systems</td>
+                      <td>88.0%</td>
+                      <td>84.0 / 100</td>
+                      <td><span class="grade-chip grade-a">A</span></td>
+                      <td><span class="badge badge-success">Good</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>CS503</strong></td>
+                      <td>Operating Systems</td>
+                      <td>78.5%</td>
+                      <td>76.0 / 100</td>
+                      <td><span class="grade-chip grade-bplus">B+</span></td>
+                      <td><span class="badge badge-warning">Monitor</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 2: STUDENTS DIRECTORY -->
+          <section id="tab-students" class="tab-content" style="display:none;">
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3 class="panel-title">Enrolled Students Directory</h3>
+                <button class="btn btn-primary" onclick="switchTab('add-student')">➕ Register Student</button>
+              </div>
+
+              <div class="form-group" style="margin-bottom:20px;">
+                <input type="text" id="search-student-input" class="form-input" placeholder="🔍 Search student by name, enrollment no, or email..." onkeyup="filterStudents()">
+              </div>
+
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Enrollment No</th>
+                      <th>Student Name</th>
+                      <th>Email</th>
+                      <th>Department</th>
+                      <th>Semester</th>
+                    </tr>
+                  </thead>
+                  <tbody id="students-table-body">
+                    <!-- Dynamic Rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 3: FACULTY DIRECTORY -->
+          <section id="tab-faculty" class="tab-content" style="display:none;">
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3 class="panel-title">Faculty Members &amp; Course Allocations</h3>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Faculty Name</th>
+                      <th>Email</th>
+                      <th>Department</th>
+                      <th>Assigned Subjects</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>1</td>
+                      <td><strong>Dr. Rajesh Sharma</strong></td>
+                      <td>prof.sharma@college.edu</td>
+                      <td>Computer Science &amp; Engineering</td>
+                      <td>CS501 (DSA), CS502 (DBMS)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 4: SUBJECTS CURRICULUM -->
+          <section id="tab-subjects" class="tab-content" style="display:none;">
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3 class="panel-title">Curriculum Subjects</h3>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Code</th>
+                      <th>Subject Name</th>
+                      <th>Semester</th>
+                      <th>Credits</th>
+                    </tr>
+                  </thead>
+                  <tbody id="subjects-table-body">
+                    <!-- Dynamic Subject Rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 5: MARKS MANAGEMENT -->
+          <section id="tab-marks" class="tab-content" style="display:none;">
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3 class="panel-title">Student Academic Marks Breakdown</h3>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Subject</th>
+                      <th>Internal (30)</th>
+                      <th>Assignment (20)</th>
+                      <th>Practical (20)</th>
+                      <th>Final Exam (50)</th>
+                      <th>Total Score</th>
+                      <th>Grade</th>
+                    </tr>
+                  </thead>
+                  <tbody id="marks-table-body">
+                    <!-- Dynamic Marks Rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 6: ATTENDANCE TRACKER -->
+          <section id="tab-attendance" class="tab-content" style="display:none;">
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3 class="panel-title">Subject Attendance Monitoring</h3>
+                <span class="badge badge-warning">75% Min Required</span>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Subject</th>
+                      <th>Classes Held</th>
+                      <th>Classes Attended</th>
+                      <th>Attendance %</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="attendance-table-body">
+                    <!-- Dynamic Attendance Rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 7: PERFORMANCE ANALYTICS -->
+          <section id="tab-performance" class="tab-content" style="display:none;">
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3 class="panel-title">Performance Analytics Summary</h3>
+              </div>
+              <div style="padding:20px; background:var(--bg-app); border-radius:var(--radius-card); margin-bottom:20px;">
+                <h4 style="font-size:16px; font-weight:700; color:var(--text-main); margin-bottom:12px;">Overall Academic Score</h4>
+                <div style="width:100%; height:12px; background:var(--border-color); border-radius:6px; overflow:hidden; margin-bottom:8px;">
+                  <div style="width:82.4%; height:100%; background:var(--primary); border-radius:6px;"></div>
+                </div>
+                <span style="font-size:13px; color:var(--text-muted); font-weight:600;">Overall Score: 82.4%</span>
+              </div>
+
+              <div style="padding:20px; background:var(--bg-app); border-radius:var(--radius-card);">
+                <h4 style="font-size:16px; font-weight:700; color:var(--text-main); margin-bottom:12px;">Total Attendance Percentage</h4>
+                <div style="width:100%; height:12px; background:var(--border-color); border-radius:6px; overflow:hidden; margin-bottom:8px;">
+                  <div style="width:86.4%; height:100%; background:var(--success); border-radius:6px;"></div>
+                </div>
+                <span style="font-size:13px; color:var(--text-muted); font-weight:600;">Total Attendance: 86.4%</span>
+              </div>
+          </section>
+
+          <!-- TAB 8: ADD STUDENT FORM -->
+          <section id="tab-add-student" class="tab-content" style="display:none;">
+            <div class="panel-card" style="max-width:600px; margin:0 auto;">
+              <div class="panel-header">
+                <h3 class="panel-title">Register New Student Profile</h3>
+              </div>
+              <form id="add-student-form">
+                <div class="form-group">
+                  <label class="form-label">First Name</label>
+                  <input type="text" id="add-first-name" class="form-input" placeholder="e.g. Rahul" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Last Name</label>
+                  <input type="text" id="add-last-name" class="form-input" placeholder="e.g. Sharma" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Enrollment Number</label>
+                  <input type="text" id="add-enrollment" class="form-input" placeholder="e.g. CS2026099" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Email Address</label>
+                  <input type="email" id="add-email" class="form-input" placeholder="e.g. rahul@college.edu" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; height:46px; font-size:15px; margin-top:10px;">
+                  Register Student
+                </button>
+              </form>
+            </div>
+          </section>
+
+          <!-- TAB 9: PROFILE -->
+          <section id="tab-profile" class="tab-content" style="display:none;">
+            <div class="panel-card" style="max-width:500px; margin:0 auto; text-align:center;">
+              <div style="width:80px; height:80px; border-radius:40px; background:var(--primary); color:#ffffff; font-size:32px; font-weight:800; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">R</div>
+              <h2 style="font-size:22px; font-weight:800; color:var(--text-main); margin-bottom:4px;" id="profile-full-name">Rahul Sharma</h2>
+              <span class="badge badge-info" style="margin-bottom:20px;">Student Account</span>
+
+              <div style="text-align:left; border-top:1px solid var(--border-color); padding-top:20px; display:flex; flex-direction:column; gap:12px;">
+                <div><strong style="color:var(--text-muted);">Enrollment No:</strong> <span id="profile-enrollment">CS2026001</span></div>
+                <div><strong style="color:var(--text-muted);">Email:</strong> <span id="profile-email">rahul.sharma@college.edu</span></div>
+                <div><strong style="color:var(--text-muted);">Department:</strong> Computer Science &amp; Engineering</div>
+                <div><strong style="color:var(--text-muted);">Course &amp; Sem:</strong> B.Tech - Semester 5</div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </main>
+
+      <!-- MOBILE BOTTOM NAVIGATION -->
+      <nav class="mobile-bottom-nav">
+        <button class="bottom-nav-item active" data-tab="dashboard" onclick="switchTab('dashboard')">
+          <span class="nav-icon">🏠</span>
+          <span>Home</span>
+        </button>
+        <button class="bottom-nav-item" data-tab="marks" onclick="switchTab('marks')">
+          <span class="nav-icon">📝</span>
+          <span>Marks</span>
+        </button>
+        <button class="bottom-nav-item" data-tab="attendance" onclick="switchTab('attendance')">
+          <span class="nav-icon">📅</span>
+          <span>Attendance</span>
+        </button>
+        <button class="bottom-nav-item" data-tab="performance" onclick="switchTab('performance')">
+          <span class="nav-icon">📊</span>
+          <span>Performance</span>
+        </button>
+        <button class="bottom-nav-item" data-tab="profile" onclick="switchTab('profile')">
+          <span class="nav-icon">👤</span>
+          <span>Profile</span>
+        </button>
+      </nav>
+
+    </div>
+  </div>
+
+  <script src="./js/app.js"></script>
+</body>
+</html>

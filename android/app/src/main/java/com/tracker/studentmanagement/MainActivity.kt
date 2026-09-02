@@ -32,8 +32,8 @@ class MainActivity : AppCompatActivity() {
         webSettings.javaScriptEnabled = true
         webSettings.domStorageEnabled = true
         webSettings.databaseEnabled = true
-        webSettings.loadWithOverviewMode = true
-        webSettings.useWideViewPort = true
+        webSettings.loadWithOverviewMode = false
+        webSettings.useWideViewPort = false
         webSettings.allowFileAccess = true
         webSettings.allowContentAccess = true
         webSettings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW

@@ -416,7 +416,10 @@ def serve_android_app():
 
 @app.route('/<path:path>')
 def serve_static(path):
-    return send_from_directory('android_app', path)
+    static_file = os.path.join('android_app', path)
+    if os.path.exists(static_file) and os.path.isfile(static_file):
+        return send_from_directory('android_app', path)
+    return send_from_directory('android_app', 'index.html')
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

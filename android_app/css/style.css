@@ -60,13 +60,10 @@ body {
   max-width: 520px;
   margin: 0 auto;
   min-height: 100vh;
-  height: 100vh;
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow: hidden;
   background: var(--bg-primary);
-  flex: 1;
 }
 
 @media (min-width: 521px) {

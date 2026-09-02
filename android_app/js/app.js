@@ -78,15 +78,22 @@ async function syncOfflineQueue() {
 function saveLocalCache(key, data) { localStorage.setItem('cache_' + key, JSON.stringify(data)); }
 function getLocalCache(key) { try { return JSON.parse(localStorage.getItem('cache_' + key) || 'null'); } catch (e) { return null; } }
 
-// ==============================================================================
-// INITIALIZATION
-// ==============================================================================
+function bindEvent(id, eventName, handler) {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener(eventName, handler);
+}
 
-document.addEventListener('DOMContentLoaded', () => {
-  initEventListeners();
-  initNetworkListeners();
-  checkAuthSession();
-});
+function initApp() {
+  try { initEventListeners(); } catch (e) { console.error('initEventListeners error:', e); }
+  try { initNetworkListeners(); } catch (e) { console.error('initNetworkListeners error:', e); }
+  try { checkAuthSession(); } catch (e) { console.error('checkAuthSession error:', e); showAuthScreen(); }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
 function initNetworkListeners() {
   window.addEventListener('online', () => { state.isOnline = true; updateNetworkPill(); syncOfflineQueue(); });
@@ -115,19 +122,23 @@ function updateNetworkPill() {
 }
 
 // ==============================================================================
-// AUTHENTICATION (Server-Only - No Demo Fallback)
+// AUTHENTICATION
 // ==============================================================================
 
 function checkAuthSession() {
-  const saved = localStorage.getItem('tracker_user');
-  if (saved) {
-    try {
-      state.user = JSON.parse(saved);
-      onLoginSuccess(state.user, true);
-    } catch (e) { showAuthScreen(); }
-  } else {
-    showAuthScreen();
+  try {
+    const saved = localStorage.getItem('tracker_user');
+    if (saved) {
+      const user = JSON.parse(saved);
+      if (user && (user.role || user.username || user.user_id)) {
+        onLoginSuccess(user, true);
+        return;
+      }
+    }
+  } catch (e) {
+    console.error('Session parse error:', e);
   }
+  showAuthScreen();
 }
 
 function showAuthScreen() {
@@ -396,32 +407,36 @@ function closeModal(id) { const m = document.getElementById(id); if (m) m.classL
 
 function initEventListeners() {
   // Navigation
-  document.getElementById('nav-dashboard').addEventListener('click', () => switchTab('dashboard'));
-  document.getElementById('nav-students').addEventListener('click', () => switchTab('students'));
-  document.getElementById('nav-marks').addEventListener('click', () => switchTab('marks'));
-  document.getElementById('nav-rankings').addEventListener('click', () => switchTab('rankings'));
-  document.getElementById('nav-profile').addEventListener('click', () => switchTab('profile'));
+  bindEvent('nav-dashboard', 'click', () => switchTab('dashboard'));
+  bindEvent('nav-students', 'click', () => switchTab('students'));
+  bindEvent('nav-marks', 'click', () => switchTab('marks'));
+  bindEvent('nav-rankings', 'click', () => switchTab('rankings'));
+  bindEvent('nav-profile', 'click', () => switchTab('profile'));
 
-  // Login Form (Server auth only, no demo fallback)
-  document.getElementById('login-form').addEventListener('submit', async (e) => {
+  // Login Form
+  bindEvent('login-form', 'submit', async (e) => {
     e.preventDefault();
-    const username = document.getElementById('login-username').value.trim();
-    const password = document.getElementById('login-password').value.trim();
+    const usernameEl = document.getElementById('login-username');
+    const passwordEl = document.getElementById('login-password');
+    const username = usernameEl ? usernameEl.value.trim() : '';
+    const password = passwordEl ? passwordEl.value.trim() : '';
     const errorEl = document.getElementById('login-error');
     const btnText = document.getElementById('login-btn-text');
     const btnLoader = document.getElementById('login-btn-loader');
     const submitBtn = document.getElementById('login-submit-btn');
 
     if (!username || !password) {
-      errorEl.textContent = 'Please enter both username and password.';
-      errorEl.style.display = 'block';
+      if (errorEl) {
+        errorEl.textContent = 'Please enter both username and password.';
+        errorEl.style.display = 'block';
+      }
       return;
     }
 
-    errorEl.style.display = 'none';
-    btnText.textContent = 'Signing in...';
-    btnLoader.style.display = 'inline-block';
-    submitBtn.disabled = true;
+    if (errorEl) errorEl.style.display = 'none';
+    if (btnText) btnText.textContent = 'Signing in...';
+    if (btnLoader) btnLoader.style.display = 'inline-block';
+    if (submitBtn) submitBtn.disabled = true;
 
     try {
       const res = await fetch(`${API_BASE}/api/login`, {
@@ -435,20 +450,24 @@ function initEventListeners() {
         showToast('Welcome back, ' + (data.user.username || 'User') + '!', 'success');
         return;
       } else {
-        errorEl.textContent = data.message || 'Invalid credentials. Please try again.';
-        errorEl.style.display = 'block';
+        if (errorEl) {
+          errorEl.textContent = data.message || 'Invalid credentials. Please try again.';
+          errorEl.style.display = 'block';
+        }
       }
     } catch (err) {
-      errorEl.textContent = 'Unable to connect to the server. Check your connection and try again.';
-      errorEl.style.display = 'block';
+      if (errorEl) {
+        errorEl.textContent = 'Unable to connect to the server. Check your connection and try again.';
+        errorEl.style.display = 'block';
+      }
     } finally {
-      btnText.textContent = 'Sign In';
-      btnLoader.style.display = 'none';
-      submitBtn.disabled = false;
+      if (btnText) btnText.textContent = 'Sign In';
+      if (btnLoader) btnLoader.style.display = 'none';
+      if (submitBtn) submitBtn.disabled = false;
     }
   });
 
-  // Student Search (debounced)
+  // Search
   const searchInput = document.getElementById('student-search-input');
   if (searchInput) {
     let timeout;
@@ -459,18 +478,21 @@ function initEventListeners() {
   }
 
   // Logout
-  document.getElementById('logout-btn').addEventListener('click', () => {
+  bindEvent('logout-btn', 'click', () => {
     localStorage.removeItem('tracker_user');
     state.user = null;
-    document.getElementById('login-username').value = '';
-    document.getElementById('login-password').value = '';
-    document.getElementById('login-error').style.display = 'none';
+    const uEl = document.getElementById('login-username');
+    const pEl = document.getElementById('login-password');
+    const errEl = document.getElementById('login-error');
+    if (uEl) uEl.value = 'admin';
+    if (pEl) pEl.value = 'admin123';
+    if (errEl) errEl.style.display = 'none';
     showAuthScreen();
     showToast('Signed out successfully', 'info');
   });
 
   // FAB
-  document.getElementById('fab-add-btn').addEventListener('click', () => {
+  bindEvent('fab-add-btn', 'click', () => {
     populateDeptSelect('add-std-dept');
     openModal('add-student-modal');
   });

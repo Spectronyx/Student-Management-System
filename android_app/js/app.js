@@ -3,7 +3,9 @@
    Connected 100% to FastAPI + MySQL Backend API
    ============================================================================== */
 
-const API_BASE = window.location.origin;
+const API_BASE = (window.location.origin && window.location.origin.startsWith('http') && !window.location.origin.includes('10.0.2.2') && !window.location.origin.includes('localhost') && !window.location.origin.includes('127.0.0.1'))
+  ? window.location.origin
+  : 'https://student-management-system-alpha-liard.vercel.app';
 
 // Application State
 const state = {

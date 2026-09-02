@@ -234,13 +234,24 @@ async function fetchStudents(query = '') {
       return;
     }
   } catch (err) { console.warn('Offline: cached students'); }
+async function fetchStudents(query = '') {
+  try {
+    const res = await fetch(`${API_BASE}/api/students${query ? '?q=' + encodeURIComponent(query) : ''}`);
+    const data = await res.json();
+    if (data.success && data.students && data.students.length) {
+      state.students = data.students;
+      saveLocalCache('students', state.students);
+      renderAllViews(state.students);
+      return;
+    }
+  } catch (err) { console.warn('Offline: cached students'); }
   state.students = getLocalCache('students') || [
-    { student_id: 101, name: 'Rahul Sharma', enrollment_no: 'Roll No. 101', department_name: 'BCA - 1', semester: 1, attendance: 'Present', marks: '85.0%' },
-    { student_id: 102, name: 'Priya Singh', enrollment_no: 'Roll No. 102', department_name: 'BCA - 1', semester: 1, attendance: 'Present', marks: '78.5%' },
-    { student_id: 103, name: 'Aman Verma', enrollment_no: 'Roll No. 103', department_name: 'BCA - 1', semester: 1, attendance: 'Absent', marks: '65.0%' },
-    { student_id: 104, name: 'Neha Kumari', enrollment_no: 'Roll No. 104', department_name: 'BCA - 1', semester: 1, attendance: 'Present', marks: '90.5%' },
-    { student_id: 105, name: 'Sahil Khan', enrollment_no: 'Roll No. 105', department_name: 'BCA - 1', semester: 1, attendance: 'Present', marks: '72.0%' },
-    { student_id: 106, name: 'Anjali Mehta', enrollment_no: 'Roll No. 106', department_name: 'BCA - 1', semester: 1, attendance: 'Absent', marks: '88.0%' }
+    { student_id: 101, name: 'Rahul Sharma', enrollment_no: 'Roll No. 101', department_name: 'BCA - 1', section: 'Section A', semester: 1, attendance: 'Present', marks: '85.0%' },
+    { student_id: 102, name: 'Priya Singh', enrollment_no: 'Roll No. 102', department_name: 'BCA - 1', section: 'Section A', semester: 1, attendance: 'Present', marks: '78.5%' },
+    { student_id: 103, name: 'Aman Verma', enrollment_no: 'Roll No. 103', department_name: 'BCA - 1', section: 'Section B', semester: 1, attendance: 'Absent', marks: '65.0%' },
+    { student_id: 104, name: 'Neha Kumari', enrollment_no: 'Roll No. 104', department_name: 'CSE - 1', section: 'Section A', semester: 1, attendance: 'Present', marks: '90.5%' },
+    { student_id: 105, name: 'Sahil Khan', enrollment_no: 'Roll No. 105', department_name: 'CSE - 1', section: 'Section B', semester: 1, attendance: 'Present', marks: '72.0%' },
+    { student_id: 106, name: 'Anjali Mehta', enrollment_no: 'Roll No. 106', department_name: 'ECE - 1', section: 'Section A', semester: 1, attendance: 'Absent', marks: '88.0%' }
   ];
   const filtered = query ? state.students.filter(s => s.name.toLowerCase().includes(query.toLowerCase()) || s.enrollment_no.toLowerCase().includes(query.toLowerCase())) : state.students;
   renderAllViews(filtered);
@@ -249,7 +260,7 @@ async function fetchStudents(query = '') {
 function renderAllViews(list) {
   renderRecentStudents(list.slice(0, 3));
   renderStudentsList(list);
-  renderAttendanceList(list);
+  filterAttendanceView();
   renderMarksList(list);
 }
 
@@ -258,7 +269,7 @@ function renderRecentStudents(list) {
   if (!container) return;
   if (!list.length) { container.innerHTML = '<div class="empty-state">No recent students</div>'; return; }
   container.innerHTML = list.map(s => `
-    <div class="student-row-card">
+    <div class="student-row-card" onclick="viewReportCard(${s.student_id})">
       <div class="student-row-left">
         <img src="./img/logo.png" class="student-avatar-img" alt="${esc(s.name)}">
         <div>
@@ -276,13 +287,13 @@ function renderStudentsList(list) {
   if (!container) return;
   if (!list.length) { container.innerHTML = '<div class="empty-state">No students found</div>'; return; }
   container.innerHTML = list.map(s => `
-    <div class="student-row-card">
+    <div class="student-row-card" onclick="viewReportCard(${s.student_id})">
       <div class="student-row-left">
         <img src="./img/logo.png" class="student-avatar-img" alt="${esc(s.name)}">
         <div>
           <div class="student-name-text">${esc(s.name)}</div>
           <div class="student-roll-text">${esc(s.enrollment_no || 'Roll No. 101')}</div>
-          <div class="student-class-text">Class: ${esc(s.department_name || 'BCA - 1')}</div>
+          <div class="student-class-text">Class: ${esc(s.department_name || 'BCA - 1')} · ${esc(s.section || 'Section A')}</div>
         </div>
       </div>
       <span style="color: var(--text-muted); font-size: 16px; font-weight: 700;">❯</span>
@@ -290,10 +301,27 @@ function renderStudentsList(list) {
   `).join('');
 }
 
+function filterAttendanceView() {
+  const classEl = document.getElementById('attendance-class-select');
+  const secEl = document.getElementById('attendance-section-select');
+  const cls = classEl ? classEl.value : 'ALL';
+  const sec = secEl ? secEl.value : 'ALL';
+
+  let list = state.students || [];
+  if (cls !== 'ALL') {
+    list = list.filter(s => (s.department_name || '').toLowerCase() === cls.toLowerCase());
+  }
+  if (sec !== 'ALL') {
+    list = list.filter(s => (s.section || 'Section A').toLowerCase() === sec.toLowerCase());
+  }
+
+  renderAttendanceList(list);
+}
+
 function renderAttendanceList(list) {
   const container = document.getElementById('attendance-students-container');
   if (!container) return;
-  if (!list.length) { container.innerHTML = '<div class="empty-state">No students</div>'; return; }
+  if (!list.length) { container.innerHTML = '<div class="empty-state">No students in selected class/section</div>'; return; }
   container.innerHTML = list.map((s) => {
     const isPresent = s.attendance !== 'Absent';
     return `
@@ -302,10 +330,10 @@ function renderAttendanceList(list) {
           <img src="./img/logo.png" class="student-avatar-img" alt="${esc(s.name)}">
           <div>
             <div class="student-name-text">${esc(s.name)}</div>
-            <div class="student-roll-text">${esc(s.enrollment_no || 'Roll No. 101')}</div>
+            <div class="student-roll-text">${esc(s.enrollment_no || 'Roll No. 101')} · ${esc(s.section || 'Sec A')}</div>
           </div>
         </div>
-        <button class="status-pill ${isPresent ? 'status-present' : 'status-absent'}" onclick="toggleStudentAttendance(this)">
+        <button class="status-pill ${isPresent ? 'status-present' : 'status-absent'}" onclick="toggleStudentAttendance(this, ${s.student_id})">
           ${isPresent ? 'Present 🔽' : 'Absent 🔽'}
         </button>
       </div>
@@ -313,20 +341,25 @@ function renderAttendanceList(list) {
   }).join('');
 }
 
-function toggleStudentAttendance(btn) {
+function toggleStudentAttendance(btn, studentId) {
+  const s = state.students.find(x => x.student_id == studentId);
   if (btn.classList.contains('status-present')) {
     btn.classList.remove('status-present');
     btn.classList.add('status-absent');
     btn.innerHTML = 'Absent 🔽';
+    if (s) s.attendance = 'Absent';
   } else {
     btn.classList.remove('status-absent');
     btn.classList.add('status-present');
     btn.innerHTML = 'Present 🔽';
+    if (s) s.attendance = 'Present';
   }
+  saveLocalCache('students', state.students);
 }
 
 function saveAttendance() {
-  showToast('Attendance saved successfully!', 'success');
+  const formattedDate = document.getElementById('attendance-date-val')?.textContent || 'today';
+  showToast(`Attendance saved for ${formattedDate}!`, 'success');
 }
 
 function renderMarksList(list) {
@@ -340,12 +373,12 @@ function renderMarksList(list) {
     if (val < 70) scoreCls = 'marks-low';
     else if (val < 80) scoreCls = 'marks-medium';
     return `
-      <div class="student-row-card">
+      <div class="student-row-card" onclick="viewReportCard(${s.student_id})">
         <div class="student-row-left">
           <img src="./img/logo.png" class="student-avatar-img" alt="${esc(s.name)}">
           <div>
             <div class="student-name-text">${esc(s.name)}</div>
-            <div class="student-roll-text">${esc(s.enrollment_no || 'Roll No. 101')}</div>
+            <div class="student-roll-text">${esc(s.enrollment_no || 'Roll No. 101')} · ${esc(s.department_name || 'BCA - 1')}</div>
           </div>
         </div>
         <div class="marks-percentage-text ${scoreCls}">${pct}</div>
@@ -473,11 +506,14 @@ function handlePhotoUpload(inputEl, iconId, labelId) {
   reader.readAsDataURL(file);
 }
 
-function handleAddStudentSubmit(e, nameVal, enrollVal, deptVal, semVal) {
+function handleAddStudentSubmit(e, nameVal, enrollVal, classVal, sectionVal, dobVal, phoneVal) {
   e.preventDefault();
   const name = nameVal ? nameVal.trim() : '';
   const roll = enrollVal ? enrollVal.trim() : '';
-  const dept = deptVal || 'BCA - 1';
+  const cls = classVal || 'BCA - 1';
+  const sec = sectionVal || 'Section A';
+  const dob = dobVal ? dobVal.trim() : '';
+  const phone = phoneVal ? phoneVal.trim() : '';
 
   if (!name || !roll) {
     showToast('Please fill in student name and roll number', 'error');
@@ -488,10 +524,13 @@ function handleAddStudentSubmit(e, nameVal, enrollVal, deptVal, semVal) {
     student_id: Date.now(),
     name: name,
     enrollment_no: roll.startsWith('Roll') ? roll : 'Roll No. ' + roll,
-    department_name: dept,
+    department_name: cls,
+    section: sec,
+    dob: dob,
+    phone: phone,
     semester: 1,
     attendance: 'Present',
-    marks: '82.0%'
+    marks: '85.0%'
   };
 
   state.students.unshift(newStudent);
@@ -502,7 +541,7 @@ function handleAddStudentSubmit(e, nameVal, enrollVal, deptVal, semVal) {
   const statTotal = document.getElementById('stat-total-students');
   if (statTotal) statTotal.textContent = state.students.length;
 
-  showToast(`Student ${name} added successfully!`, 'success');
+  showToast(`Student ${name} (${cls} · ${sec}) added successfully!`, 'success');
   
   closeModal('add-student-modal');
   e.target.reset();
@@ -516,6 +555,13 @@ function initEventListeners() {
   bindEvent('nav-attendance', 'click', () => switchTab('attendance'));
   bindEvent('nav-marks', 'click', () => switchTab('marks'));
   bindEvent('nav-profile', 'click', () => switchTab('profile'));
+
+  // Attendance Class and Section Filter Dropdowns
+  const attClassSelect = document.getElementById('attendance-class-select');
+  if (attClassSelect) attClassSelect.addEventListener('change', filterAttendanceView);
+
+  const attSecSelect = document.getElementById('attendance-section-select');
+  if (attSecSelect) attSecSelect.addEventListener('change', filterAttendanceView);
 
   // Header Actions
   const notifBtn = document.querySelector('.header-actions .header-icon-btn');
@@ -586,7 +632,9 @@ function initEventListeners() {
       const enrollVal = document.getElementById('add-std-enrollment').value;
       const deptVal = document.getElementById('add-std-dept').value;
       const semVal = document.getElementById('add-std-sem').value;
-      handleAddStudentSubmit(e, nameVal, enrollVal, deptVal, semVal);
+      const dobVal = document.getElementById('add-std-course').value;
+      const phoneVal = document.getElementById('add-std-phone').value;
+      handleAddStudentSubmit(e, nameVal, enrollVal, deptVal, semVal, dobVal, phoneVal);
     });
   }
 
@@ -598,7 +646,9 @@ function initEventListeners() {
       const enrollVal = document.getElementById('add-std-enrollment-v').value;
       const deptVal = document.getElementById('add-std-dept-v').value;
       const semVal = document.getElementById('add-std-sem-v').value;
-      handleAddStudentSubmit(e, nameVal, enrollVal, deptVal, semVal);
+      const dobVal = document.getElementById('add-std-dob-v').value;
+      const phoneVal = document.getElementById('add-std-phone-v').value;
+      handleAddStudentSubmit(e, nameVal, enrollVal, deptVal, semVal, dobVal, phoneVal);
     });
   }
 

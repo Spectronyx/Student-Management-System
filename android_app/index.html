@@ -181,13 +181,23 @@
             <button class="date-arrow-btn">▶</button>
           </div>
 
-          <!-- Class Dropdown Filter -->
-          <div class="form-group" style="margin-bottom: 14px;">
-            <select id="attendance-class-select" class="form-select">
-              <option value="BCA-1">Class: BCA - 1</option>
-              <option value="CSE-1">Class: CSE - 1</option>
-              <option value="ECE-1">Class: ECE - 1</option>
-            </select>
+          <!-- Class & Section Dropdown Filters -->
+          <div style="display: flex; gap: 10px; margin-bottom: 14px;">
+            <div class="form-group" style="flex: 1;">
+              <select id="attendance-class-select" class="form-select">
+                <option value="ALL">All Classes</option>
+                <option value="BCA - 1" selected>Class: BCA - 1</option>
+                <option value="CSE - 1">Class: CSE - 1</option>
+                <option value="ECE - 1">Class: ECE - 1</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <select id="attendance-section-select" class="form-select">
+                <option value="ALL">All Sections</option>
+                <option value="Section A" selected>Section A</option>
+                <option value="Section B">Section B</option>
+              </select>
+            </div>
           </div>
 
           <!-- Student Attendance List -->

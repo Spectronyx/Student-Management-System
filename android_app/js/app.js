@@ -372,6 +372,7 @@ function switchTab(tabId) {
   const nav = document.getElementById(`nav-${tabId}`);
   if (nav) nav.classList.add('active');
   // Scroll content to top on tab switch
+  window.scrollTo(0, 0);
   const content = document.querySelector('.app-content');
   if (content) content.scrollTop = 0;
 }

@@ -131,13 +131,23 @@ function checkAuthSession() {
 }
 
 function showAuthScreen() {
-  document.getElementById('auth-view').classList.remove('hidden');
-  document.getElementById('main-app').style.display = 'none';
+  const authView = document.getElementById('auth-view');
+  const mainApp = document.getElementById('main-app');
+  if (authView) {
+    authView.classList.remove('hidden');
+    authView.style.display = 'flex';
+  }
+  if (mainApp) mainApp.style.display = 'none';
 }
 
 function hideAuthScreen() {
-  document.getElementById('auth-view').classList.add('hidden');
-  document.getElementById('main-app').style.display = 'flex';
+  const authView = document.getElementById('auth-view');
+  const mainApp = document.getElementById('main-app');
+  if (authView) {
+    authView.classList.add('hidden');
+    authView.style.display = 'none';
+  }
+  if (mainApp) mainApp.style.display = 'flex';
 }
 
 function onLoginSuccess(user, isRestore = false) {
@@ -161,7 +171,7 @@ function onLoginSuccess(user, isRestore = false) {
   }
 
   loadInitialData();
-  if (!isRestore) switchTab('dashboard');
+  switchTab('dashboard');
   updateNetworkPill();
   syncOfflineQueue();
 }

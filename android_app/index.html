@@ -254,10 +254,66 @@
           </div>
         </section>
 
+        <!-- VIEW 6: ADD STUDENT (SCREEN 3 MATCH) -->
+        <section id="view-add-student" class="view-section">
+          <div class="card-section">
+            <h3 class="section-header-title" style="margin-bottom: 16px;">Add New Student</h3>
+            <form id="add-student-view-form">
+              <input type="file" id="photo-upload-input-view" accept="image/*" style="display:none;">
+              <div class="photo-upload-placeholder" onclick="document.getElementById('photo-upload-input-view').click()">
+                <span class="photo-upload-icon" id="photo-upload-icon-view">📷</span>
+                <span id="photo-upload-label-view">Add Photo</span>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 12px;">
+                <div class="input-wrapper">
+                  <span class="input-icon">👤</span>
+                  <input type="text" id="add-std-name-v" class="form-input icon-input" placeholder="Full Name" required>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 12px;">
+                <div class="input-wrapper">
+                  <span class="input-icon">💳</span>
+                  <input type="text" id="add-std-enrollment-v" class="form-input icon-input" placeholder="Roll Number" required>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 12px;">
+                <select id="add-std-dept-v" class="form-select" required>
+                  <option value="BCA - 1">Class: BCA - 1</option>
+                  <option value="CSE - 1">Class: CSE - 1</option>
+                  <option value="ECE - 1">Class: ECE - 1</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 12px;">
+                <select id="add-std-sem-v" class="form-select" required>
+                  <option value="Section A">Section A</option>
+                  <option value="Section B">Section B</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 12px;">
+                <input type="text" id="add-std-dob-v" class="form-input" placeholder="Date of Birth (DD/MM/YYYY)">
+              </div>
+
+              <div class="form-group" style="margin-bottom: 12px;">
+                <div class="input-wrapper">
+                  <span class="input-icon">📞</span>
+                  <input type="tel" id="add-std-phone-v" class="form-input icon-input" placeholder="Phone Number">
+                </div>
+              </div>
+
+              <button type="submit" class="btn-primary-action">Save Student</button>
+            </form>
+          </div>
+        </section>
+
       </main>
 
       <!-- FLOATING ACTION BUTTON (PURPLE FAB FOR ADD STUDENT) -->
-      <button id="fab-add-btn" class="fab-btn" title="Add Student">+</button>
+      <button id="fab-add-btn" class="fab-btn" title="Add Student" onclick="switchTab('add-student')">+</button>
 
       <!-- BOTTOM NAVIGATION BAR (5 TABS SPEC MATCH) -->
       <nav class="bottom-nav">
@@ -294,9 +350,10 @@
         </div>
 
         <form id="add-student-form">
-          <div class="photo-upload-placeholder">
-            <span class="photo-upload-icon">📷</span>
-            <span>Add Photo</span>
+          <input type="file" id="photo-upload-input" accept="image/*" style="display:none;">
+          <div class="photo-upload-placeholder" onclick="document.getElementById('photo-upload-input').click()">
+            <span class="photo-upload-icon" id="photo-upload-icon">📷</span>
+            <span id="photo-upload-label">Add Photo</span>
           </div>
 
           <div class="form-group" style="margin-bottom: 12px;">
@@ -315,15 +372,16 @@
 
           <div class="form-group" style="margin-bottom: 12px;">
             <select id="add-std-dept" class="form-select" required>
-              <option value="1">Class: BCA - 1</option>
-              <option value="2">Class: CSE - 1</option>
+              <option value="BCA - 1">Class: BCA - 1</option>
+              <option value="CSE - 1">Class: CSE - 1</option>
+              <option value="ECE - 1">Class: ECE - 1</option>
             </select>
           </div>
 
           <div class="form-group" style="margin-bottom: 12px;">
             <select id="add-std-sem" class="form-select" required>
-              <option value="1">Section A</option>
-              <option value="2">Section B</option>
+              <option value="Section A">Section A</option>
+              <option value="Section B">Section B</option>
             </select>
           </div>
 
@@ -340,6 +398,19 @@
 
           <button type="submit" class="btn-primary-action">Save Student</button>
         </form>
+      </div>
+    </div>
+
+    <!-- MODAL: REPORT CARD -->
+    <div id="report-card-modal" class="modal-overlay">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h3 class="modal-title">Student Report Card</h3>
+          <button class="modal-close" onclick="closeModal('report-card-modal')">✕</button>
+        </div>
+        <div id="report-card-content">
+          <!-- Dynamically populated report card details -->
+        </div>
       </div>
     </div>
 

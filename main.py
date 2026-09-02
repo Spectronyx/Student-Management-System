@@ -22,12 +22,18 @@ except ImportError:
 # Load environment variables
 load_dotenv()
 
-# Setup logging
-logging.basicConfig(
-    filename='app_errors.log', 
-    level=logging.ERROR,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+# Setup logging safely for serverless / Vercel
+try:
+    logging.basicConfig(
+        filename='app_errors.log', 
+        level=logging.ERROR,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+except Exception:
+    logging.basicConfig(
+        level=logging.ERROR,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
 
 # ==============================================================================
 # CONFIGURATION & DATABASE CONNECTIVITY
@@ -40,6 +46,7 @@ class Config:
     DB_USER = os.getenv("DB_USER", "root")
     DB_PASSWORD = os.getenv("DB_PASSWORD", "")
     DB_SOCKET = os.getenv("DB_SOCKET", "")
+    DB_SSL = os.getenv("DB_SSL", "false").lower() in ("true", "1", "yes")
 
     @classmethod
     def get_db_config(cls, include_db=True):
@@ -48,7 +55,10 @@ class Config:
             "password": cls.DB_PASSWORD,
             "host": cls.DB_HOST,
             "port": cls.DB_PORT,
+            "connect_timeout": 10
         }
+        if cls.DB_SSL:
+            cfg["ssl_disabled"] = False
         if cls.DB_SOCKET and os.path.exists(cls.DB_SOCKET):
             cfg["unix_socket"] = cls.DB_SOCKET
         if include_db:

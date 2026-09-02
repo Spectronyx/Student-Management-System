@@ -14,11 +14,17 @@ import main
 app = Flask(__name__, static_folder='android_app', static_url_path='')
 CORS(app)
 
-# Ensure Database is initialized on app startup
-try:
-    main.init_database(run_seed=True)
-except Exception as e:
-    logging.warning(f"Database init warning on API startup: {e}")
+# Ensure Database is lazily initialized on app startup
+_db_initialized = False
+
+def ensure_db_ready():
+    global _db_initialized
+    if not _db_initialized:
+        try:
+            main.init_database(run_seed=True)
+            _db_initialized = True
+        except Exception as e:
+            logging.warning(f"Database init warning on API startup: {e}")
 
 # ==============================================================================
 # REST API & OFFLINE SYNC ENDPOINTS
@@ -26,11 +32,12 @@ except Exception as e:
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
+    ensure_db_ready()
     return jsonify({
         "status": "online",
         "app": "Student Academic Performance Tracker",
         "version": "1.1.0",
-        "database": main.Config.DB_NAME,
+        "database": getattr(main.Config, 'DB_NAME', 'defaultdb'),
         "offline_sync_supported": True
     })
 

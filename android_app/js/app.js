@@ -393,6 +393,62 @@ function initEventListeners() {
     });
   }
 
+  // Signup Form
+  const signupForm = document.getElementById('signup-form');
+  if (signupForm) {
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('signup-name').value.trim();
+      const username = document.getElementById('signup-username').value.trim();
+      const email = document.getElementById('signup-email').value.trim();
+      const role = document.getElementById('signup-role').value;
+      const password = document.getElementById('signup-password').value.trim();
+      const errorEl = document.getElementById('signup-error');
+      const submitBtn = document.getElementById('signup-submit-btn');
+
+      if (!name || !username || !email || !password) {
+        if (errorEl) {
+          errorEl.textContent = 'Please complete all fields.';
+          errorEl.style.display = 'block';
+        }
+        return;
+      }
+
+      if (errorEl) errorEl.style.display = 'none';
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Creating Account...'; }
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/signup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, username, email, role, password })
+        });
+        const responseData = await res.json();
+
+        if (res.ok && responseData.success) {
+          onLoginSuccess(responseData.data, responseData.data.access_token);
+          showToast(`Welcome to EduTrack, ${responseData.data.name}!`, 'success');
+        } else {
+          const errMsg = responseData.detail ? (responseData.detail.message || responseData.detail) : 'Registration failed';
+          if (errorEl) {
+            errorEl.textContent = typeof errMsg === 'string' ? errMsg : 'Signup failed. Please try again.';
+            errorEl.style.display = 'block';
+          }
+          showToast('Registration failed', 'danger');
+        }
+      } catch (err) {
+        console.error('Signup error:', err);
+        if (errorEl) {
+          errorEl.textContent = 'Server connection error. Please try again.';
+          errorEl.style.display = 'block';
+        }
+      } finally {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Create EduTrack Account'; }
+      }
+    });
+  }
+
+
   // Add Student Form
   const addStudentForm = document.getElementById('add-student-form');
   if (addStudentForm) {
@@ -518,3 +574,39 @@ function filterStudents() {
     fetchStudents(searchInput.value.trim());
   }
 }
+
+function toggleAuthTab(mode) {
+  const loginForm = document.getElementById('login-form');
+  const signupForm = document.getElementById('signup-form');
+  const loginBtn = document.getElementById('auth-tab-login-btn');
+  const signupBtn = document.getElementById('auth-tab-signup-btn');
+
+  if (mode === 'signup') {
+    if (loginForm) loginForm.style.display = 'none';
+    if (signupForm) signupForm.style.display = 'block';
+    if (loginBtn) {
+      loginBtn.style.background = 'transparent';
+      loginBtn.style.color = 'var(--text-muted)';
+      loginBtn.style.boxShadow = 'none';
+    }
+    if (signupBtn) {
+      signupBtn.style.background = 'var(--bg-card)';
+      signupBtn.style.color = 'var(--text-main)';
+      signupBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+    }
+  } else {
+    if (loginForm) loginForm.style.display = 'block';
+    if (signupForm) signupForm.style.display = 'none';
+    if (signupBtn) {
+      signupBtn.style.background = 'transparent';
+      signupBtn.style.color = 'var(--text-muted)';
+      signupBtn.style.boxShadow = 'none';
+    }
+    if (loginBtn) {
+      loginBtn.style.background = 'var(--bg-card)';
+      loginBtn.style.color = 'var(--text-main)';
+      loginBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+    }
+  }
+}
+

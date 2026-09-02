@@ -27,11 +27,13 @@
         </div>
 
         <div class="panel-card" style="margin-bottom:0;">
-          <div style="margin-bottom:20px; text-align:center;">
-            <h2 style="font-size:20px; font-weight:700; color:var(--text-main);">Welcome Back</h2>
-            <p style="font-size:13px; color:var(--text-muted);">Sign in to access your academic tracker</p>
+          <!-- Auth Toggle Tabs -->
+          <div style="display:flex; background:var(--bg-main); padding:4px; border-radius:12px; margin-bottom:20px;">
+            <button id="auth-tab-login-btn" type="button" class="btn" style="flex:1; border-radius:8px; font-weight:600; font-size:14px; background:var(--bg-card); color:var(--text-main); box-shadow:0 2px 4px rgba(0,0,0,0.05);" onclick="toggleAuthTab('login')">Sign In</button>
+            <button id="auth-tab-signup-btn" type="button" class="btn" style="flex:1; border-radius:8px; font-weight:600; font-size:14px; background:transparent; color:var(--text-muted);" onclick="toggleAuthTab('signup')">Sign Up</button>
           </div>
 
+          <!-- SIGN IN FORM -->
           <form id="login-form">
             <div id="login-error" class="badge badge-danger" style="display:none; width:100%; padding:10px; margin-bottom:16px; text-align:center;"></div>
 
@@ -58,6 +60,44 @@
                 <button type="button" class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="quickFillLogin('student1', 'student123')">🎓 Student</button>
               </div>
             </div>
+          </form>
+
+          <!-- SIGN UP FORM -->
+          <form id="signup-form" style="display:none;">
+            <div id="signup-error" class="badge badge-danger" style="display:none; width:100%; padding:10px; margin-bottom:16px; text-align:center;"></div>
+
+            <div class="form-group">
+              <label class="form-label" for="signup-name">Full Name</label>
+              <input type="text" id="signup-name" class="form-input" placeholder="e.g. Rahul Sharma" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="signup-username">Username / Enrollment No.</label>
+              <input type="text" id="signup-username" class="form-input" placeholder="e.g. student99" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="signup-email">Email Address</label>
+              <input type="email" id="signup-email" class="form-input" placeholder="student@college.edu" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="signup-role">Role</label>
+              <select id="signup-role" class="form-input" style="height:42px;">
+                <option value="Student">Student</option>
+                <option value="Faculty">Faculty</option>
+                <option value="Admin">Admin</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom:24px;">
+              <label class="form-label" for="signup-password">Password</label>
+              <input type="password" id="signup-password" class="form-input" placeholder="Create password" required>
+            </div>
+
+            <button type="submit" id="signup-submit-btn" class="btn btn-primary" style="width:100%; height:46px; font-size:15px;">
+              Create EduTrack Account
+            </button>
           </form>
         </div>
       </div>

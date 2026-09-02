@@ -17,6 +17,13 @@ class LoginRequest(BaseModel):
     username_or_email: str = Field(..., description="Username or Email address")
     password: str = Field(..., description="Password")
 
+class SignupRequest(BaseModel):
+    username: str = Field(..., description="Username or Enrollment number")
+    email: EmailStr = Field(..., description="Email address")
+    password: str = Field(..., description="Password")
+    name: str = Field(..., description="Full Name")
+    role: Optional[str] = Field("Student", description="User Role: Admin, Faculty, or Student")
+
 class LoginResponseData(BaseModel):
     access_token: str
     token_type: str = "bearer"

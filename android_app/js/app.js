@@ -611,3 +611,15 @@ function toggleAuthTab(mode) {
   }
 }
 
+function toggleSidebar() {
+  const sidebar = document.getElementById('app-sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  if (sidebar) {
+    sidebar.classList.toggle('open');
+    if (overlay) {
+      overlay.classList.toggle('active', sidebar.classList.contains('open'));
+    }
+  }
+}
+
+

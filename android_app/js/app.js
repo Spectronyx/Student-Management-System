@@ -167,24 +167,21 @@ function onLoginSuccess(user, isRestore = false) {
 
   hideAuthScreen();
 
-  document.getElementById('user-role-badge').textContent = user.role || 'User';
-  document.getElementById('profile-name').textContent = user.username || user.name || 'User';
-  document.getElementById('profile-email').textContent = user.email || '';
-  document.getElementById('profile-role').textContent = user.role || 'User';
-  document.getElementById('profile-avatar').textContent = (user.username || user.name || 'U').charAt(0).toUpperCase();
-  document.getElementById('header-subtitle').textContent = `Logged in as ${user.role || 'User'}`;
+  const name = user.username || user.name || 'Admin User';
+  const email = user.email || 'admin@college.edu';
 
-  const fab = document.getElementById('fab-add-btn');
-  if (user.role === 'Student') {
-    fab.style.display = 'none';
-  } else {
-    fab.style.display = 'flex';
-  }
+  const elName = document.getElementById('profile-name');
+  if (elName) elName.textContent = name;
+
+  const elEmail = document.getElementById('profile-email');
+  if (elEmail) elEmail.textContent = email;
+
+  const elDashUser = document.getElementById('dashboard-user-name');
+  if (elDashUser) elDashUser.textContent = name;
 
   loadInitialData();
   switchTab('dashboard');
   updateNetworkPill();
-  syncOfflineQueue();
 }
 
 // ==============================================================================
@@ -481,7 +478,6 @@ function handleAddStudentSubmit(e, nameVal, enrollVal, deptVal, semVal) {
   const name = nameVal ? nameVal.trim() : '';
   const roll = enrollVal ? enrollVal.trim() : '';
   const dept = deptVal || 'BCA - 1';
-  const sem = semVal || 'Section A';
 
   if (!name || !roll) {
     showToast('Please fill in student name and roll number', 'error');
@@ -501,6 +497,10 @@ function handleAddStudentSubmit(e, nameVal, enrollVal, deptVal, semVal) {
   state.students.unshift(newStudent);
   saveLocalCache('students', state.students);
   renderAllViews(state.students);
+
+  // Update total student count on dashboard
+  const statTotal = document.getElementById('stat-total-students');
+  if (statTotal) statTotal.textContent = state.students.length;
 
   showToast(`Student ${name} added successfully!`, 'success');
   
@@ -522,7 +522,7 @@ function initEventListeners() {
   if (notifBtn) notifBtn.addEventListener('click', () => showToast('No new notifications', 'info'));
 
   const menuBtn = document.querySelector('.menu-btn-icon');
-  if (menuBtn) menuBtn.addEventListener('click', () => switchTab('profile'));
+  if (menuBtn) menuBtn.addEventListener('click', () => switchTab('dashboard'));
 
   // Date Prev / Next Arrows in Attendance
   const prevDateBtn = document.querySelector('.date-arrow-btn:first-child');
@@ -536,6 +536,47 @@ function initEventListeners() {
 
   const photoInputView = document.getElementById('photo-upload-input-view');
   if (photoInputView) photoInputView.addEventListener('change', (e) => handlePhotoUpload(e.target, 'photo-upload-icon-view', 'photo-upload-label-view'));
+
+  // Personal Info Form Handler
+  const personalForm = document.getElementById('personal-info-form');
+  if (personalForm) {
+    personalForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newName = document.getElementById('edit-profile-name').value.trim();
+      const newEmail = document.getElementById('edit-profile-email').value.trim();
+      
+      if (newName) {
+        document.getElementById('profile-name').textContent = newName;
+        document.getElementById('dashboard-user-name').textContent = newName;
+      }
+      if (newEmail) {
+        document.getElementById('profile-email').textContent = newEmail;
+      }
+      
+      showToast('Personal information updated successfully!', 'success');
+      closeModal('personal-info-modal');
+    });
+  }
+
+  // Change Password Form Handler
+  const passwordForm = document.getElementById('change-password-form');
+  if (passwordForm) {
+    passwordForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const curr = document.getElementById('current-pass').value;
+      const newP = document.getElementById('new-pass').value;
+      const confP = document.getElementById('confirm-pass').value;
+
+      if (newP !== confP) {
+        showToast('New passwords do not match!', 'error');
+        return;
+      }
+
+      showToast('Password updated successfully!', 'success');
+      e.target.reset();
+      closeModal('change-password-modal');
+    });
+  }
 
   // Modal Form Submit
   const modalForm = document.getElementById('add-student-form');

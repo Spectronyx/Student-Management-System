@@ -33,6 +33,7 @@ __pycache__/
 *.tar.gz
 *.apk
 *.aar
+!StudentTracker.apk
 
 # Android build outputs & local SDK tools
 android/.gradle/

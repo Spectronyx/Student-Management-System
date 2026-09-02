@@ -1,4 +1,4 @@
-/* Student Academic Performance Tracker - Android Client Application & Offline Engine */
+/* Student Academic Performance Tracker - Application Engine */
 
 const API_BASE = window.location.origin;
 
@@ -12,19 +12,29 @@ const state = {
   subjects: [],
   rankings: [],
   analytics: [],
-  selectedStudent: null
 };
+
+// ==============================================================================
+// TOAST NOTIFICATION SYSTEM
+// ==============================================================================
+
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3200);
+}
 
 // ==============================================================================
 // OFFLINE MUTATION QUEUE & STORAGE ENGINE
 // ==============================================================================
 
 function getOfflineQueue() {
-  try {
-    return JSON.parse(localStorage.getItem('tracker_offline_queue') || '[]');
-  } catch (e) {
-    return [];
-  }
+  try { return JSON.parse(localStorage.getItem('tracker_offline_queue') || '[]'); }
+  catch (e) { return []; }
 }
 
 function saveOfflineQueue(queue) {
@@ -34,26 +44,18 @@ function saveOfflineQueue(queue) {
 
 function enqueueMutation(type, payload) {
   const queue = getOfflineQueue();
-  const mutation = {
+  queue.push({
     id: 'mut_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
     timestamp: new Date().toISOString(),
-    type: type,
-    payload: payload
-  };
-  queue.push(mutation);
+    type, payload
+  });
   saveOfflineQueue(queue);
-  
-  if (state.isOnline) {
-    syncOfflineQueue();
-  }
+  if (state.isOnline) syncOfflineQueue();
 }
 
 async function syncOfflineQueue() {
   const queue = getOfflineQueue();
-  if (queue.length === 0) {
-    updateNetworkPill();
-    return;
-  }
+  if (queue.length === 0) { updateNetworkPill(); return; }
 
   try {
     const res = await fetch(`${API_BASE}/api/sync`, {
@@ -62,38 +64,22 @@ async function syncOfflineQueue() {
       body: JSON.stringify({ mutations: queue })
     });
     const data = await res.json();
-
     if (data.success) {
-      if (data.synced_count > 0) {
-        showToast(`🟢 Synced ${data.synced_count} offline changes with backend!`);
-      }
-      
-      // Filter out synced items
+      if (data.synced_count > 0) showToast(`Synced ${data.synced_count} offline changes`, 'success');
       const syncedIds = new Set(data.synced.map(i => i.id));
-      const remainingQueue = queue.filter(item => !syncedIds.has(item.id));
-      saveOfflineQueue(remainingQueue);
-
-      // Refresh live server data
+      saveOfflineQueue(queue.filter(item => !syncedIds.has(item.id)));
       loadInitialData();
     }
   } catch (err) {
-    console.warn("Backend server still unreachable. Retrying sync later.", err);
+    console.warn('Sync failed, will retry later.', err);
   }
 }
 
-// Local cache backup
-function saveLocalCache(key, data) {
-  localStorage.setItem('cache_' + key, JSON.stringify(data));
-}
-
-function getLocalCache(key) {
-  try {
-    return JSON.parse(localStorage.getItem('cache_' + key) || 'null');
-  } catch (e) { return null; }
-}
+function saveLocalCache(key, data) { localStorage.setItem('cache_' + key, JSON.stringify(data)); }
+function getLocalCache(key) { try { return JSON.parse(localStorage.getItem('cache_' + key) || 'null'); } catch (e) { return null; } }
 
 // ==============================================================================
-// INITIALIZATION & AUTH
+// INITIALIZATION
 // ==============================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -103,91 +89,87 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initNetworkListeners() {
-  window.addEventListener('online', () => {
-    state.isOnline = true;
-    updateNetworkPill();
-    syncOfflineQueue();
-  });
-
-  window.addEventListener('offline', () => {
-    state.isOnline = false;
-    updateNetworkPill();
-  });
-
-  // Periodic Sync Check every 15 seconds
+  window.addEventListener('online', () => { state.isOnline = true; updateNetworkPill(); syncOfflineQueue(); });
+  window.addEventListener('offline', () => { state.isOnline = false; updateNetworkPill(); });
   setInterval(() => {
-    if (navigator.onLine) {
-      state.isOnline = true;
-      syncOfflineQueue();
-    } else {
-      state.isOnline = false;
-      updateNetworkPill();
-    }
+    state.isOnline = navigator.onLine;
+    if (state.isOnline) syncOfflineQueue();
+    updateNetworkPill();
   }, 15000);
 }
 
 function updateNetworkPill() {
   const pill = document.getElementById('network-status-pill');
-  const queue = getOfflineQueue();
-  
   if (!pill) return;
-
+  const queue = getOfflineQueue();
   if (state.isOnline && queue.length === 0) {
-    pill.className = 'badge badge-a-plus';
-    pill.innerHTML = '🟢 Online';
+    pill.className = 'badge badge-online';
+    pill.textContent = 'Online';
   } else if (state.isOnline && queue.length > 0) {
-    pill.className = 'badge badge-c';
-    pill.innerHTML = `🔄 Syncing (${queue.length})`;
+    pill.className = 'badge badge-syncing';
+    pill.textContent = `Syncing (${queue.length})`;
   } else {
-    pill.className = 'badge badge-f';
-    pill.innerHTML = `🔴 Local Mode (${queue.length} pending)`;
+    pill.className = 'badge badge-offline';
+    pill.textContent = `Offline (${queue.length})`;
   }
 }
+
+// ==============================================================================
+// AUTHENTICATION (Server-Only - No Demo Fallback)
+// ==============================================================================
 
 function checkAuthSession() {
-  const savedUser = localStorage.getItem('tracker_user');
-  if (savedUser) {
+  const saved = localStorage.getItem('tracker_user');
+  if (saved) {
     try {
-      state.user = JSON.parse(savedUser);
-      onLoginSuccess(state.user);
-    } catch (e) {
-      showLoginView();
-    }
+      state.user = JSON.parse(saved);
+      onLoginSuccess(state.user, true);
+    } catch (e) { showAuthScreen(); }
   } else {
-    showLoginView();
+    showAuthScreen();
   }
 }
 
-function showLoginView() {
-  document.getElementById('auth-view').classList.add('active');
+function showAuthScreen() {
+  document.getElementById('auth-view').classList.remove('hidden');
   document.getElementById('main-app').style.display = 'none';
 }
 
-function onLoginSuccess(user) {
+function hideAuthScreen() {
+  document.getElementById('auth-view').classList.add('hidden');
+  document.getElementById('main-app').style.display = 'flex';
+}
+
+function onLoginSuccess(user, isRestore = false) {
   state.user = user;
   localStorage.setItem('tracker_user', JSON.stringify(user));
 
-  document.getElementById('auth-view').classList.remove('active');
-  document.getElementById('main-app').style.display = 'block';
+  hideAuthScreen();
 
-  document.getElementById('user-role-badge').innerText = user.role;
-  document.getElementById('profile-name').innerText = user.username || user.name || 'User';
-  document.getElementById('profile-email').innerText = user.email;
-  document.getElementById('profile-role').innerText = user.role;
+  document.getElementById('user-role-badge').textContent = user.role || 'User';
+  document.getElementById('profile-name').textContent = user.username || user.name || 'User';
+  document.getElementById('profile-email').textContent = user.email || '';
+  document.getElementById('profile-role').textContent = user.role || 'User';
+  document.getElementById('profile-avatar').textContent = (user.username || user.name || 'U').charAt(0).toUpperCase();
+  document.getElementById('header-subtitle').textContent = `Logged in as ${user.role || 'User'}`;
 
+  const fab = document.getElementById('fab-add-btn');
   if (user.role === 'Student') {
-    document.getElementById('fab-add-btn').style.display = 'none';
+    fab.style.display = 'none';
   } else {
-    document.getElementById('fab-add-btn').style.display = 'flex';
+    fab.style.display = 'flex';
   }
 
   loadInitialData();
-  switchTab('dashboard');
+  if (!isRestore) switchTab('dashboard');
   updateNetworkPill();
   syncOfflineQueue();
 }
 
-// Initial Data Fetching with Offline Cache Fallback
+// ==============================================================================
+// DATA FETCHING WITH CACHE FALLBACK
+// ==============================================================================
+
 async function loadInitialData() {
   try {
     const [deptRes, subRes, dashRes] = await Promise.all([
@@ -196,321 +178,239 @@ async function loadInitialData() {
       fetch(`${API_BASE}/api/dashboard`).then(r => r.json()).catch(() => null)
     ]);
 
-    if (deptRes && deptRes.departments) {
-      state.departments = deptRes.departments;
-      saveLocalCache('departments', state.departments);
-    } else {
-      state.departments = getLocalCache('departments') || [];
-    }
+    if (deptRes && deptRes.departments) { state.departments = deptRes.departments; saveLocalCache('departments', state.departments); }
+    else { state.departments = getLocalCache('departments') || []; }
 
-    if (subRes && subRes.subjects) {
-      state.subjects = subRes.subjects;
-      saveLocalCache('subjects', state.subjects);
-    } else {
-      state.subjects = getLocalCache('subjects') || [];
-    }
+    if (subRes && subRes.subjects) { state.subjects = subRes.subjects; saveLocalCache('subjects', state.subjects); }
+    else { state.subjects = getLocalCache('subjects') || []; }
 
-    if (dashRes && dashRes.summary) {
-      updateDashboardSummary(dashRes.summary);
-      saveLocalCache('summary', dashRes.summary);
-    } else {
-      const cachedSum = getLocalCache('summary');
-      if (cachedSum) updateDashboardSummary(cachedSum);
-    }
+    if (dashRes && dashRes.summary) { updateDashboardSummary(dashRes.summary); saveLocalCache('summary', dashRes.summary); }
+    else { const c = getLocalCache('summary'); if (c) updateDashboardSummary(c); }
 
     fetchStudents();
     fetchRankings();
     fetchAnalytics();
   } catch (err) {
-    console.warn("Using local cache fallback:", err);
+    console.warn('Using local cache fallback:', err);
   }
 }
 
-function updateDashboardSummary(summary) {
-  document.getElementById('stat-total-students').innerText = summary.total_students || 0;
-  document.getElementById('stat-avg-cgpa').innerText = summary.average_cgpa ? summary.average_cgpa.toFixed(2) : '0.00';
-  document.getElementById('stat-departments').innerText = summary.total_departments || 0;
-  document.getElementById('stat-warnings').innerText = summary.low_attendance_warnings || 0;
+function updateDashboardSummary(s) {
+  document.getElementById('stat-total-students').textContent = s.total_students || 0;
+  const cgpa = parseFloat(s.average_cgpa);
+  document.getElementById('stat-avg-cgpa').textContent = isNaN(cgpa) ? '0.00' : cgpa.toFixed(2);
+  document.getElementById('stat-departments').textContent = s.total_departments || 0;
+  document.getElementById('stat-warnings').textContent = s.low_attendance_warnings || 0;
 }
 
-// Fetch Students
+// ==============================================================================
+// STUDENTS
+// ==============================================================================
+
 async function fetchStudents(query = '') {
   try {
     const res = await fetch(`${API_BASE}/api/students${query ? '?q=' + encodeURIComponent(query) : ''}`);
     const data = await res.json();
-    if (data.success) {
-      state.students = data.students;
-      saveLocalCache('students', state.students);
-      renderStudentsList(state.students);
-      return;
-    }
-  } catch (err) {
-    console.warn("Offline: Reading cached students");
-  }
-
-  // Local Cache Read
+    if (data.success) { state.students = data.students; saveLocalCache('students', state.students); renderStudentsList(state.students); return; }
+  } catch (err) { console.warn('Offline: cached students'); }
   state.students = getLocalCache('students') || [];
-  if (query) {
-    const q = query.toLowerCase();
-    renderStudentsList(state.students.filter(s => s.name.toLowerCase().includes(q) || s.enrollment_no.toLowerCase().includes(q)));
-  } else {
-    renderStudentsList(state.students);
-  }
+  const filtered = query ? state.students.filter(s => s.name.toLowerCase().includes(query.toLowerCase()) || s.enrollment_no.toLowerCase().includes(query.toLowerCase())) : state.students;
+  renderStudentsList(filtered);
 }
 
 function renderStudentsList(list) {
-  const container = document.getElementById('students-list-container');
-  if (!container) return;
-
-  if (list.length === 0) {
-    container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 30px;">No students found</div>';
-    return;
-  }
-
-  container.innerHTML = list.map(s => `
-    <div class="list-item" onclick="viewStudentDetails(${s.student_id})">
+  const el = document.getElementById('students-list-container');
+  if (!el) return;
+  if (!list.length) { el.innerHTML = '<div class="empty-state">No students found</div>'; return; }
+  el.innerHTML = list.map(s => `
+    <div class="list-item" onclick="viewReportCard(${s.student_id})">
       <div class="student-info">
-        <div class="avatar-circle">${s.name.charAt(0)}</div>
-        <div>
-          <div class="student-name">${escapeHtml(s.name)}</div>
-          <div class="student-meta">${escapeHtml(s.enrollment_no)} • ${escapeHtml(s.department_name || '')} (Sem ${s.semester})</div>
+        <div class="avatar-circle">${esc(s.name).charAt(0)}</div>
+        <div style="min-width:0">
+          <div class="student-name">${esc(s.name)}</div>
+          <div class="student-meta">${esc(s.enrollment_no)} · ${esc(s.department_name || '')} · Sem ${s.semester}</div>
         </div>
       </div>
-      <div>
-        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); viewReportCard(${s.student_id})">Report</button>
-      </div>
+      <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); viewReportCard(${s.student_id})">Report</button>
     </div>
   `).join('');
 }
 
-// Fetch Rankings
+// ==============================================================================
+// RANKINGS
+// ==============================================================================
+
 async function fetchRankings() {
   try {
     const res = await fetch(`${API_BASE}/api/rankings?mode=overall`);
     const data = await res.json();
-    if (data.success) {
-      state.rankings = data.rankings;
-      saveLocalCache('rankings', state.rankings);
-      renderRankings(state.rankings);
-      return;
-    }
-  } catch (err) {
-    console.warn("Offline: Reading cached rankings");
-  }
-
+    if (data.success) { state.rankings = data.rankings; saveLocalCache('rankings', state.rankings); renderRankings(); return; }
+  } catch (err) { console.warn('Offline: cached rankings'); }
   state.rankings = getLocalCache('rankings') || [];
-  renderRankings(state.rankings);
+  renderRankings();
 }
 
-function renderRankings(rankings) {
-  const container = document.getElementById('rankings-list');
-  if (!container) return;
+function renderRankings() {
+  // Render into both dashboard preview and full rankings tab
+  renderRankingsList('rankings-list', state.rankings.slice(0, 5));
+  renderRankingsList('full-rankings-container', state.rankings);
+}
 
-  if (!rankings || rankings.length === 0) {
-    container.innerHTML = '<div style="color: var(--text-muted); padding: 15px;">No rankings available</div>';
-    return;
-  }
-
-  container.innerHTML = rankings.map(r => {
-    let rankClass = 'rank-other';
-    if (r.rank_no === 1) rankClass = 'rank-1';
-    else if (r.rank_no === 2) rankClass = 'rank-2';
-    else if (r.rank_no === 3) rankClass = 'rank-3';
-
+function renderRankingsList(containerId, rankings) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  if (!rankings || !rankings.length) { el.innerHTML = '<div class="empty-state">No rankings available</div>'; return; }
+  el.innerHTML = rankings.map(r => {
+    let cls = 'rank-other';
+    if (r.rank_no === 1) cls = 'rank-1';
+    else if (r.rank_no === 2) cls = 'rank-2';
+    else if (r.rank_no === 3) cls = 'rank-3';
     return `
       <div class="rank-item">
-        <div style="display: flex; align-items: center;">
-          <div class="rank-badge ${rankClass}">#${r.rank_no}</div>
-          <div>
-            <div style="font-weight: 600; font-size: 13px;">${escapeHtml(r.name)}</div>
-            <div style="font-size: 11px; color: var(--text-muted);">${escapeHtml(r.enrollment_no)} • ${r.department_code}</div>
+        <div class="rank-info">
+          <div class="rank-badge ${cls}">#${r.rank_no}</div>
+          <div style="min-width:0">
+            <div class="rank-name">${esc(r.name)}</div>
+            <div class="rank-meta">${esc(r.enrollment_no)} · ${r.department_code}</div>
           </div>
         </div>
-        <div style="font-weight: 700; font-size: 15px; color: var(--primary);">
-          ${parseFloat(r.cgpa).toFixed(2)} <span style="font-size: 10px; color: var(--text-muted);">CGPA</span>
-        </div>
-      </div>
-    `;
+        <div class="rank-cgpa">${parseFloat(r.cgpa).toFixed(2)} <span class="rank-cgpa-label">CGPA</span></div>
+      </div>`;
   }).join('');
 }
 
-// Fetch Analytics
+// ==============================================================================
+// ANALYTICS
+// ==============================================================================
+
 async function fetchAnalytics() {
   try {
     const res = await fetch(`${API_BASE}/api/analytics`);
     const data = await res.json();
-    if (data.success) {
-      state.analytics = data.analytics;
-      saveLocalCache('analytics', state.analytics);
-      renderAnalytics(state.analytics);
-      return;
-    }
-  } catch (err) {
-    console.warn("Offline: Reading cached analytics");
-  }
-
+    if (data.success) { state.analytics = data.analytics; saveLocalCache('analytics', state.analytics); renderAnalytics(state.analytics); return; }
+  } catch (err) { console.warn('Offline: cached analytics'); }
   state.analytics = getLocalCache('analytics') || [];
   renderAnalytics(state.analytics);
 }
 
-function renderAnalytics(analytics) {
-  const container = document.getElementById('analytics-list');
-  if (!container) return;
-
-  if (!analytics || analytics.length === 0) {
-    container.innerHTML = '<div style="color: var(--text-muted); padding: 15px;">No subject data available</div>';
-    return;
-  }
-
-  container.innerHTML = analytics.map(a => `
-    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 10px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-        <span style="font-weight: 700; font-size: 13px; color: var(--primary);">${escapeHtml(a.subject_code)}</span>
+function renderAnalytics(list) {
+  const el = document.getElementById('analytics-list');
+  if (!el) return;
+  if (!list || !list.length) { el.innerHTML = '<div class="empty-state">No analytics data</div>'; return; }
+  el.innerHTML = list.map(a => `
+    <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border-color);border-radius:var(--radius-sm);padding:12px;margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span style="font-weight:700;font-size:13px;color:var(--primary-light)">${esc(a.subject_code)}</span>
         <span class="badge badge-a">${a.pass_percentage}% Pass</span>
       </div>
-      <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px;">${escapeHtml(a.subject_name)}</div>
-      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted);">
+      <div style="font-size:13px;font-weight:600;margin-bottom:6px;">${esc(a.subject_name)}</div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);">
         <span>Students: ${a.total_students}</span>
         <span>Avg: ${a.avg_marks}</span>
         <span>Max: ${a.max_marks}</span>
-        <span>Passed: ${a.passed_students}</span>
       </div>
     </div>
   `).join('');
 }
 
-// Report Card Modal View
+// ==============================================================================
+// REPORT CARD
+// ==============================================================================
+
 async function viewReportCard(studentId) {
   try {
     const res = await fetch(`${API_BASE}/api/report-card/${studentId}`);
     const data = await res.json();
-    if (data.success) {
-      renderReportCardModal(data);
-      return;
-    }
-  } catch (err) {
-    console.warn("Offline mode report card preview");
-  }
-
+    if (data.success) { renderReportCardModal(data); return; }
+  } catch (err) { console.warn('Offline report card'); }
   const s = state.students.find(x => x.student_id == studentId);
-  if (s) {
-    renderReportCardModal({
-      student: s,
-      subjects: [],
-      overall_cgpa: 8.5,
-      overall_attendance: 85.0,
-      status: "Good",
-      warnings: []
-    });
-  }
+  if (s) renderReportCardModal({ student: s, subjects: [], overall_cgpa: 0, overall_attendance: 0, status: 'N/A', warnings: [] });
 }
 
 function renderReportCardModal(report) {
   const s = report.student;
-  const content = `
-    <div style="text-align: center; margin-bottom: 16px;">
-      <div style="font-size: 18px; font-weight: 700; color: #fff;">${escapeHtml(s.name)}</div>
-      <div style="font-size: 12px; color: var(--text-muted);">${escapeHtml(s.enrollment_no)} • ${escapeHtml(s.department_name || '')} • Sem ${s.semester}</div>
+  const cgpa = parseFloat(report.overall_cgpa) || 0;
+  const att = parseFloat(report.overall_attendance) || 0;
+  document.getElementById('report-card-content').innerHTML = `
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="font-size:18px;font-weight:700;">${esc(s.name)}</div>
+      <div style="font-size:12px;color:var(--text-muted);">${esc(s.enrollment_no)} · ${esc(s.department_name || '')} · Sem ${s.semester}</div>
     </div>
-
-    <div class="stat-grid" style="margin-bottom: 16px;">
-      <div class="stat-box">
-        <span class="stat-label">CGPA</span>
-        <span class="stat-val" style="color: var(--primary);">${report.overall_cgpa.toFixed(2)}</span>
-      </div>
-      <div class="stat-box">
-        <span class="stat-label">Attendance</span>
-        <span class="stat-val" style="color: ${report.overall_attendance < 75 ? 'var(--accent-rose)' : 'var(--accent-emerald)'};">
-          ${report.overall_attendance.toFixed(1)}%
-        </span>
-      </div>
+    <div class="stat-grid" style="margin-bottom:14px;">
+      <div class="stat-box stat-box-primary"><span class="stat-label">CGPA</span><span class="stat-val">${cgpa.toFixed(2)}</span></div>
+      <div class="stat-box ${att < 75 ? 'stat-box-danger' : ''}"><span class="stat-label">Attendance</span><span class="stat-val">${att.toFixed(1)}%</span></div>
     </div>
-
-    <div style="margin-bottom: 16px;">
-      <span class="badge ${report.status === 'At Risk' ? 'badge-f' : 'badge-a-plus'}">Status: ${report.status}</span>
-    </div>
-
-    ${report.warnings.length > 0 ? `
-      <div class="warning-banner">
-        <div class="warning-icon">⚠️</div>
-        <div class="warning-text">${report.warnings.join('<br>')}</div>
-      </div>
-    ` : ''}
-
-    <div style="font-weight: 600; font-size: 14px; margin-bottom: 10px;">Subject Breakdown</div>
+    <div style="margin-bottom:14px;"><span class="badge ${report.status === 'At Risk' ? 'badge-f' : 'badge-a-plus'}">Status: ${report.status}</span></div>
+    ${report.warnings.length ? `<div class="warning-banner"><div class="warning-icon">⚠️</div><div class="warning-text">${report.warnings.join('<br>')}</div></div>` : ''}
+    ${report.subjects.length ? `<div style="font-weight:600;font-size:14px;margin-bottom:10px;">Subject Breakdown</div>` : ''}
     ${report.subjects.map(sub => `
-      <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px; margin-bottom: 8px;">
-        <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; margin-bottom: 4px;">
-          <span>${escapeHtml(sub.subject_code)} - ${escapeHtml(sub.subject_name)}</span>
-          <span class="badge badge-${sub.grade.toLowerCase().replace('+', '-plus')}">${sub.grade} (${sub.grade_point})</span>
+      <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border-color);border-radius:var(--radius-sm);padding:10px;margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:4px;">
+          <span>${esc(sub.subject_code)} - ${esc(sub.subject_name)}</span>
+          <span class="badge badge-a">${sub.grade} (${sub.grade_point})</span>
         </div>
-        <div style="font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between;">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);">
           <span>Marks: ${sub.total_marks}/100</span>
-          <span>Attendance: <strong style="color:${sub.is_low_attendance ? 'var(--accent-rose)' : 'inherit'}">${sub.attendance_percentage}%</strong></span>
+          <span style="color:${sub.is_low_attendance ? 'var(--accent-rose)' : 'inherit'}">Attendance: ${sub.attendance_percentage}%</span>
         </div>
       </div>
     `).join('')}
   `;
-
-  document.getElementById('report-card-content').innerHTML = content;
   openModal('report-card-modal');
 }
 
-function showToast(msg) {
-  alert(msg);
-}
+// ==============================================================================
+// NAVIGATION & UI
+// ==============================================================================
 
 function switchTab(tabId) {
   state.activeTab = tabId;
-  document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-
-  const targetSec = document.getElementById(`view-${tabId}`);
-  if (targetSec) targetSec.classList.add('active');
-
-  const targetNav = document.getElementById(`nav-${tabId}`);
-  if (targetNav) targetNav.classList.add('active');
+  document.querySelectorAll('.app-content .view-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const sec = document.getElementById(`view-${tabId}`);
+  if (sec) sec.classList.add('active');
+  const nav = document.getElementById(`nav-${tabId}`);
+  if (nav) nav.classList.add('active');
+  // Scroll content to top on tab switch
+  const content = document.querySelector('.app-content');
+  if (content) content.scrollTop = 0;
 }
 
-function openModal(modalId) {
-  const m = document.getElementById(modalId);
-  if (m) m.classList.add('active');
-}
+function openModal(id) { const m = document.getElementById(id); if (m) m.classList.add('active'); }
+function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('active'); }
 
-function closeModal(modalId) {
-  const m = document.getElementById(modalId);
-  if (m) m.classList.remove('active');
-}
+// ==============================================================================
+// EVENT LISTENERS
+// ==============================================================================
 
 function initEventListeners() {
+  // Navigation
   document.getElementById('nav-dashboard').addEventListener('click', () => switchTab('dashboard'));
   document.getElementById('nav-students').addEventListener('click', () => switchTab('students'));
   document.getElementById('nav-marks').addEventListener('click', () => switchTab('marks'));
   document.getElementById('nav-rankings').addEventListener('click', () => switchTab('rankings'));
   document.getElementById('nav-profile').addEventListener('click', () => switchTab('profile'));
 
-  document.querySelectorAll('.role-chip').forEach(chip => {
-    chip.addEventListener('click', (e) => {
-      document.querySelectorAll('.role-chip').forEach(c => c.classList.remove('active'));
-      e.target.classList.add('active');
-      const role = e.target.dataset.role;
-      if (role === 'Admin') {
-        document.getElementById('login-username').value = 'admin';
-        document.getElementById('login-password').value = 'admin123';
-      } else if (role === 'Faculty') {
-        document.getElementById('login-username').value = 'prof_rajesh';
-        document.getElementById('login-password').value = 'faculty123';
-      } else if (role === 'Student') {
-        document.getElementById('login-username').value = 'std_rahul';
-        document.getElementById('login-password').value = 'student123';
-      }
-    });
-  });
-
+  // Login Form (Server auth only, no demo fallback)
   document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const username = document.getElementById('login-username').value.trim();
     const password = document.getElementById('login-password').value.trim();
+    const errorEl = document.getElementById('login-error');
+    const btnText = document.getElementById('login-btn-text');
+    const btnLoader = document.getElementById('login-btn-loader');
+    const submitBtn = document.getElementById('login-submit-btn');
+
+    if (!username || !password) {
+      errorEl.textContent = 'Please enter both username and password.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    errorEl.style.display = 'none';
+    btnText.textContent = 'Signing in...';
+    btnLoader.style.display = 'inline-block';
+    submitBtn.disabled = true;
 
     try {
       const res = await fetch(`${API_BASE}/api/login`, {
@@ -521,43 +421,50 @@ function initEventListeners() {
       const data = await res.json();
       if (data.success) {
         onLoginSuccess(data.user);
+        showToast('Welcome back, ' + (data.user.username || 'User') + '!', 'success');
         return;
+      } else {
+        errorEl.textContent = data.message || 'Invalid credentials. Please try again.';
+        errorEl.style.display = 'block';
       }
     } catch (err) {
-      console.warn("Offline Login Fallback");
+      errorEl.textContent = 'Unable to connect to the server. Check your connection and try again.';
+      errorEl.style.display = 'block';
+    } finally {
+      btnText.textContent = 'Sign In';
+      btnLoader.style.display = 'none';
+      submitBtn.disabled = false;
     }
-
-    // Offline Demo Auth Fallback
-    onLoginSuccess({
-      username: username,
-      role: username.startsWith('prof') ? 'Faculty' : (username.startsWith('std') ? 'Student' : 'Admin'),
-      email: `${username}@tracker.edu`
-    });
   });
 
+  // Student Search (debounced)
   const searchInput = document.getElementById('student-search-input');
   if (searchInput) {
     let timeout;
     searchInput.addEventListener('input', (e) => {
       clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        fetchStudents(e.target.value);
-      }, 300);
+      timeout = setTimeout(() => fetchStudents(e.target.value), 300);
     });
   }
 
+  // Logout
   document.getElementById('logout-btn').addEventListener('click', () => {
     localStorage.removeItem('tracker_user');
     state.user = null;
-    showLoginView();
+    document.getElementById('login-username').value = '';
+    document.getElementById('login-password').value = '';
+    document.getElementById('login-error').style.display = 'none';
+    showAuthScreen();
+    showToast('Signed out successfully', 'info');
   });
 
+  // FAB
   document.getElementById('fab-add-btn').addEventListener('click', () => {
     populateDeptSelect('add-std-dept');
     openModal('add-student-modal');
   });
 
-  // Add Student Form Submission (Supports Offline Enqueue)
+  // Add Student Form (with offline enqueue)
   document.getElementById('add-student-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const payload = {
@@ -580,44 +487,46 @@ function initEventListeners() {
         });
         const data = await res.json();
         if (data.success) {
-          showToast("✅ " + data.message);
+          showToast(data.message, 'success');
           closeModal('add-student-modal');
+          e.target.reset();
           fetchStudents();
+          return;
+        } else {
+          showToast(data.message || 'Failed to add student', 'error');
           return;
         }
       } catch (err) {
-        console.warn("Server offline, queueing mutation locally.");
+        console.warn('Server offline, queueing.');
       }
     }
 
-    // Queue mutation locally for auto-sync when backend connects
     enqueueMutation('ADD_STUDENT', payload);
-    
-    // Optimistic local update
-    const newStudent = {
-      student_id: Date.now(),
-      name: payload.name,
-      enrollment_no: payload.enrollment_no,
-      email: payload.email,
-      department_name: 'Department ' + payload.department_id,
-      course: payload.course,
-      semester: payload.semester
-    };
-    state.students.unshift(newStudent);
+    state.students.unshift({
+      student_id: Date.now(), name: payload.name, enrollment_no: payload.enrollment_no,
+      email: payload.email, department_name: '', course: payload.course, semester: payload.semester
+    });
     saveLocalCache('students', state.students);
     renderStudentsList(state.students);
-
-    showToast("💾 Saved offline! Will sync automatically when backend server connects.");
+    showToast('Saved offline — will sync when connected', 'info');
     closeModal('add-student-modal');
+    e.target.reset();
+  });
+
+  // Close modals on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) overlay.classList.remove('active');
+    });
   });
 }
 
 function populateDeptSelect(selectId) {
   const el = document.getElementById(selectId);
   if (!el || !state.departments) return;
-  el.innerHTML = state.departments.map(d => `<option value="${d.department_id}">${escapeHtml(d.department_name)}</option>`).join('');
+  el.innerHTML = state.departments.map(d => `<option value="${d.department_id}">${esc(d.department_name)}</option>`).join('');
 }
 
-function escapeHtml(str) {
+function esc(str) {
   return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
